@@ -40,6 +40,22 @@
                   <tags>ViewMenu</tags>
                 </menus>
               </children>
+              <children xsi:type="basic:Part" xmi:id="_0t9FMKgCEeqsD_XPmpPDhQ" elementId="org.xmind.ui.modelPart.themes" contributorURI="platform:/plugin/org.xmind.ui.mindmap" toBeRendered="false" visible="false" contributionURI="bundleclass://org.xmind.ui.mindmap/org.xmind.ui.internal.e4models.ThemesPart" label="%part.themes.label" tooltip="%part.themes.tooltip" closeable="true">
+                <menus xmi:id="_0uAIgKgCEeqsD_XPmpPDhQ" elementId="org.xmind.ui.modelPart.theme.viewMenu">
+                  <tags>ViewMenu</tags>
+                </menus>
+                <menus xsi:type="menu:PopupMenu" xmi:id="_0uG2MKgCEeqsD_XPmpPDhQ" elementId="org.xmind.ui.dialogPart.resourceManager.theme.popupMenu">
+                  <tags>menuContribution:popup</tags>
+                </menus>
+              </children>
+              <children xsi:type="basic:Part" xmi:id="_62TjgKgCEeqsD_XPmpPDhQ" elementId="org.xmind.ui.modelPart.notes" contributorURI="platform:/plugin/org.xmind.ui.mindmap" toBeRendered="false" visible="false" contributionURI="bundleclass://org.xmind.ui.mindmap/org.xmind.ui.internal.e4models.NotesPart" label="%part.notes.label" tooltip="%part.notes.tooltip"/>
+              <children xsi:type="basic:Part" xmi:id="_7IVHoKgCEeqsD_XPmpPDhQ" elementId="org.xmind.ui.modelPart.comments" contributorURI="platform:/plugin/org.xmind.ui.mindmap" toBeRendered="false" visible="false" contributionURI="bundleclass://org.xmind.ui.mindmap/org.xmind.ui.internal.e4models.CommentsPart" label="%part.comments.label" tooltip="%part.comments.tooltip"/>
+              <children xsi:type="basic:Part" xmi:id="_7YRoIKgCEeqsD_XPmpPDhQ" elementId="org.xmind.ui.modelPart.taskinfo" contributorURI="platform:/plugin/org.xmind.ui.taskinfo" toBeRendered="false" visible="false" contributionURI="bundleclass://org.xmind.ui.taskinfo/org.xmind.ui.internal.taskinfo.e4.model.TaskInfoPart" label="%partdescriptor.label.taskinfo" tooltip="%partdescriptor.tooltip.taskinfo"/>
+              <children xsi:type="basic:Part" xmi:id="_-dnocKgCEeqsD_XPmpPDhQ" elementId="org.xmind.ui.modelPart.outline" contributorURI="platform:/plugin/org.xmind.ui.mindmap" toBeRendered="false" visible="false" contributionURI="bundleclass://org.xmind.ui.mindmap/org.xmind.ui.internal.outline.OutlineIndexModelPart" label="%part.outline.label" tooltip="%part.outline.tooltip">
+                <menus xmi:id="_-do2kKgCEeqsD_XPmpPDhQ" elementId="org.eclipse.ui.views.ContentOutline">
+                  <tags>ViewMenu</tags>
+                </menus>
+              </children>
             </children>
           </children>
         </children>
@@ -82,9 +98,9 @@
       <children xsi:type="menu:ToolBar" xmi:id="_A8W6sEVtEeWqKcBDsQEnrw" elementId="org.xmind.ui.toolbar.mindmap" contributorURI="platform:/plugin/org.xmind.ui.menus">
         <children xsi:type="menu:DirectToolItem" xmi:id="_Epx1UEY2EeWIUIBrCUBfAw" elementId="org.xmind.ui.toolbar.mindmap.topic" contributorURI="platform:/plugin/org.xmind.ui.menus" label="%toolbar.topic.label" iconURI="platform:/plugin/org.xmind.ui.menus/icons/toolbar/e/topic.png" tooltip="%toolbar.topic.tooltip" contributionURI="bundleclass://org.xmind.ui.toolkit/org.xmind.ui.internal.e4handlers.ShowPullDownMenuToolItem">
           <menu xmi:id="_Epx1UUY2EeWIUIBrCUBfAw" elementId="org.xmind.ui.toolbar.mindmap.topic.menu" contributorURI="platform:/plugin/org.xmind.ui.menus">
-            <children xsi:type="menu:MenuSeparator" xmi:id="_Epx1UkY2EeWIUIBrCUBfAw" elementId="start" contributorURI="platform:/plugin/org.xmind.ui.menus" visible="false"/>
-            <children xsi:type="menu:MenuSeparator" xmi:id="_Epx1U0Y2EeWIUIBrCUBfAw" elementId="additions" contributorURI="platform:/plugin/org.xmind.ui.menus" visible="false"/>
-            <children xsi:type="menu:MenuSeparator" xmi:id="_Epx1VEY2EeWIUIBrCUBfAw" elementId="end" contributorURI="platform:/plugin/org.xmind.ui.menus" visible="false"/>
+            <children xsi:type="menu:MenuSeparator" xmi:id="_Epx1UkY2EeWIUIBrCUBfAw" elementId="start" contributorURI="platform:/plugin/org.xmind.ui.menus" visible="false" tooltip=""/>
+            <children xsi:type="menu:MenuSeparator" xmi:id="_Epx1U0Y2EeWIUIBrCUBfAw" elementId="additions" contributorURI="platform:/plugin/org.xmind.ui.menus" visible="false" tooltip=""/>
+            <children xsi:type="menu:MenuSeparator" xmi:id="_Epx1VEY2EeWIUIBrCUBfAw" elementId="end" contributorURI="platform:/plugin/org.xmind.ui.menus" visible="false" tooltip=""/>
           </menu>
         </children>
         <children xsi:type="menu:DirectToolItem" xmi:id="_BNaDACuFEeW589Z25pk4Ag" elementId="org.xmind.ui.toolbar.mindmap.insert" contributorURI="platform:/plugin/org.xmind.ui.menus" label="%toolbar.insert.label" iconURI="platform:/plugin/org.xmind.ui.menus/icons/toolbar/e/insert.png" tooltip="%toolbar.insert.tooltip" contributionURI="bundleclass://org.xmind.ui.toolkit/org.xmind.ui.internal.e4handlers.ShowPullDownMenuToolItem">
@@ -417,11 +433,11 @@
   </descriptors>
   <descriptors xmi:id="_W8IhYETZEeaGL5Gu2uBiyA" elementId="org.xmind.ui.modelPart.image" contributorURI="platform:/plugin/org.xmind.ui.mindmap" label="%part.image.label" tooltip="%part.image.tooltip" closeable="true" contributionURI="bundleclass://org.xmind.ui.mindmap/org.xmind.ui.internal.e4models.ImagePart">
     <persistedState key="modelPart.pages.contributionUri" value="bundleclass://org.xmind.ui.gallery/org.xmind.ui.internal.gallery.ClipArtModelPage,bundleclass://org.xmind.ui.iconfinder/org.xmind.ui.internal.iconfinder.IconfinderModelPage"/>
-    <menus xmi:id="_Lnr8MafmEeqY6ZxZlLObNQ" elementId="org.xmind.ui.modelPart.image.menus.clipArt">
+    <menus xmi:id="_KhGd4agCEeqsD_XPmpPDhQ" elementId="org.xmind.ui.modelPart.image.menus.clipArt">
       <tags>ViewMenu</tags>
       <tags>org.xmind.ui.modelPart.image.pages.clipArt</tags>
     </menus>
-    <menus xmi:id="_Ln9B8KfmEeqY6ZxZlLObNQ" elementId="org.xmind.ui.modelPart.image.menus.iconfinder">
+    <menus xmi:id="_KhPn0KgCEeqsD_XPmpPDhQ" elementId="org.xmind.ui.modelPart.image.menus.iconfinder">
       <tags>ViewMenu</tags>
       <tags>org.xmind.ui.modelPart.image.pages.iconfinder</tags>
     </menus>

@@ -14,7 +14,7 @@
   #define STATION_PORT      5555
   #define PIN_LED           LED_BUILTIN
 
-  uint8_t station_ip[4] =   {192,168,23,14}; // Node-RED
+  uint8_t station_ip[4] =   {192,168,223,1}; // Node-RED
   bool LED;
 
 //######################################################################

@@ -39,7 +39,7 @@
 #define   MESH_PREFIX     "JCAmesh"
 #define   MESH_PASSWORD   "T3f]xGX*J=QWDaZbv.v+M@3="
 #define   MESH_PORT       5555
-#define   MESH_CHANNEL    6 //Der Mesh-Channel muss dem WLAN-Channel entsprechen
+#define   MESH_CHANNEL    13 //Der Mesh-Channel muss dem WLAN-Channel entsprechen
 
 #include  "Mesh_Protocol.h"
 
