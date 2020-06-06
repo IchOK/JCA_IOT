@@ -1,0 +1,32 @@
+{
+   "name":"TestNode",
+   "konfig":{
+      "i2c":true,
+      "i2c_konfig":{"sda":4, "scl":5},
+      "spi":false,
+      "onewire":true,
+      "onewire_konfig":{"pin":15}
+   },
+   "elements":[
+      {
+         "name":"TestElementDI",
+         "type":"DI",
+         "input":[],
+         "data":[],
+         "pin":14,
+         "pullup":true
+      },{
+         "name":"TestElementDO",
+         "type":"DO",
+         "input":[
+            {
+               "name":"Input",
+               "element":0,
+               "data":0
+            }
+         ],
+         "data":[],
+         "pin":16
+      }
+   ]
+}
