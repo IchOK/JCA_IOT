@@ -3,7 +3,7 @@
   <persistedState key="memento" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?>&#xD;&#xA;&lt;workbench>&#xD;&#xA;&lt;mruList/>&#xD;&#xA;&lt;/workbench>"/>
   <tags>activeSchemeId:org.eclipse.ui.defaultAcceleratorConfiguration</tags>
   <tags>ModelMigrationProcessor.001</tags>
-  <children xsi:type="basic:TrimmedWindow" xmi:id="_4IJG0qeDEeqGmurY0iOaPQ" elementId="org.xmind.cathy.window.main" contributorURI="platform:/plugin/org.xmind.cathy" selectedElement="_4XVZYKeDEeqGmurY0iOaPQ" label="XMind" x="160" y="160" width="1024" height="768">
+  <children xsi:type="basic:TrimmedWindow" xmi:id="_4IJG0qeDEeqGmurY0iOaPQ" elementId="org.xmind.cathy.window.main" contributorURI="platform:/plugin/org.xmind.cathy" selectedElement="_4XVZYKeDEeqGmurY0iOaPQ" label="XMind" x="0" y="0" width="1024" height="768">
     <persistedState key="coolBarVisible" value="true"/>
     <persistedState key="perspectiveBarVisible" value="true"/>
     <persistedState key="isRestored" value="true"/>
@@ -32,10 +32,9 @@
                   <tags>org.xmind.ui.modelPart.image.pages.iconfinder</tags>
                 </menus>
               </children>
-              <children xsi:type="basic:Part" xmi:id="_wumQ8KeEEeqGmurY0iOaPQ" elementId="org.xmind.ui.modelPart.properties" contributorURI="platform:/plugin/org.xmind.ui.mindmap" toBeRendered="false" visible="false" contributionURI="bundleclass://org.xmind.ui.mindmap/org.xmind.ui.internal.properties.PropertiesPart" label="%part.format.label" tooltip="%part.format.tooltip">
-                <tags>active</tags>
-              </children>
+              <children xsi:type="basic:Part" xmi:id="_wumQ8KeEEeqGmurY0iOaPQ" elementId="org.xmind.ui.modelPart.properties" contributorURI="platform:/plugin/org.xmind.ui.mindmap" toBeRendered="false" visible="false" contributionURI="bundleclass://org.xmind.ui.mindmap/org.xmind.ui.internal.properties.PropertiesPart" label="%part.format.label" tooltip="%part.format.tooltip"/>
               <children xsi:type="basic:Part" xmi:id="_59SjMKeGEeqGmurY0iOaPQ" elementId="org.xmind.ui.modelPart.markers" contributorURI="platform:/plugin/org.xmind.ui.mindmap" toBeRendered="false" visible="false" contributionURI="bundleclass://org.xmind.ui.mindmap/org.xmind.ui.internal.e4models.MarkerPart" label="%part.markers.label" tooltip="%part.markers.tooltip">
+                <tags>active</tags>
                 <menus xmi:id="_59W0oKeGEeqGmurY0iOaPQ" elementId="org.xmind.ui.modelpart.marker.viewmenu">
                   <tags>ViewMenu</tags>
                 </menus>
@@ -98,9 +97,9 @@
       <children xsi:type="menu:ToolBar" xmi:id="_A8W6sEVtEeWqKcBDsQEnrw" elementId="org.xmind.ui.toolbar.mindmap" contributorURI="platform:/plugin/org.xmind.ui.menus">
         <children xsi:type="menu:DirectToolItem" xmi:id="_Epx1UEY2EeWIUIBrCUBfAw" elementId="org.xmind.ui.toolbar.mindmap.topic" contributorURI="platform:/plugin/org.xmind.ui.menus" label="%toolbar.topic.label" iconURI="platform:/plugin/org.xmind.ui.menus/icons/toolbar/e/topic.png" tooltip="%toolbar.topic.tooltip" contributionURI="bundleclass://org.xmind.ui.toolkit/org.xmind.ui.internal.e4handlers.ShowPullDownMenuToolItem">
           <menu xmi:id="_Epx1UUY2EeWIUIBrCUBfAw" elementId="org.xmind.ui.toolbar.mindmap.topic.menu" contributorURI="platform:/plugin/org.xmind.ui.menus">
-            <children xsi:type="menu:MenuSeparator" xmi:id="_Epx1UkY2EeWIUIBrCUBfAw" elementId="start" contributorURI="platform:/plugin/org.xmind.ui.menus" visible="false" tooltip=""/>
-            <children xsi:type="menu:MenuSeparator" xmi:id="_Epx1U0Y2EeWIUIBrCUBfAw" elementId="additions" contributorURI="platform:/plugin/org.xmind.ui.menus" visible="false" tooltip=""/>
-            <children xsi:type="menu:MenuSeparator" xmi:id="_Epx1VEY2EeWIUIBrCUBfAw" elementId="end" contributorURI="platform:/plugin/org.xmind.ui.menus" visible="false" tooltip=""/>
+            <children xsi:type="menu:MenuSeparator" xmi:id="_Epx1UkY2EeWIUIBrCUBfAw" elementId="start" contributorURI="platform:/plugin/org.xmind.ui.menus" visible="false"/>
+            <children xsi:type="menu:MenuSeparator" xmi:id="_Epx1U0Y2EeWIUIBrCUBfAw" elementId="additions" contributorURI="platform:/plugin/org.xmind.ui.menus" visible="false"/>
+            <children xsi:type="menu:MenuSeparator" xmi:id="_Epx1VEY2EeWIUIBrCUBfAw" elementId="end" contributorURI="platform:/plugin/org.xmind.ui.menus" visible="false"/>
           </menu>
         </children>
         <children xsi:type="menu:DirectToolItem" xmi:id="_BNaDACuFEeW589Z25pk4Ag" elementId="org.xmind.ui.toolbar.mindmap.insert" contributorURI="platform:/plugin/org.xmind.ui.menus" label="%toolbar.insert.label" iconURI="platform:/plugin/org.xmind.ui.menus/icons/toolbar/e/insert.png" tooltip="%toolbar.insert.tooltip" contributionURI="bundleclass://org.xmind.ui.toolkit/org.xmind.ui.internal.e4handlers.ShowPullDownMenuToolItem">
@@ -433,11 +432,11 @@
   </descriptors>
   <descriptors xmi:id="_W8IhYETZEeaGL5Gu2uBiyA" elementId="org.xmind.ui.modelPart.image" contributorURI="platform:/plugin/org.xmind.ui.mindmap" label="%part.image.label" tooltip="%part.image.tooltip" closeable="true" contributionURI="bundleclass://org.xmind.ui.mindmap/org.xmind.ui.internal.e4models.ImagePart">
     <persistedState key="modelPart.pages.contributionUri" value="bundleclass://org.xmind.ui.gallery/org.xmind.ui.internal.gallery.ClipArtModelPage,bundleclass://org.xmind.ui.iconfinder/org.xmind.ui.internal.iconfinder.IconfinderModelPage"/>
-    <menus xmi:id="_KhGd4agCEeqsD_XPmpPDhQ" elementId="org.xmind.ui.modelPart.image.menus.clipArt">
+    <menus xmi:id="_GA8boajiEeqkUcaJnZg0xw" elementId="org.xmind.ui.modelPart.image.menus.clipArt">
       <tags>ViewMenu</tags>
       <tags>org.xmind.ui.modelPart.image.pages.clipArt</tags>
     </menus>
-    <menus xmi:id="_KhPn0KgCEeqsD_XPmpPDhQ" elementId="org.xmind.ui.modelPart.image.menus.iconfinder">
+    <menus xmi:id="_GBUPEKjiEeqkUcaJnZg0xw" elementId="org.xmind.ui.modelPart.image.menus.iconfinder">
       <tags>ViewMenu</tags>
       <tags>org.xmind.ui.modelPart.image.pages.iconfinder</tags>
     </menus>
