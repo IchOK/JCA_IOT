@@ -1,0 +1,82 @@
+# Access-Point einrichten
+# AP und DNS installieren
+>sudo apt-get update -y
+>sudo apt-get upgrade -y
+>sudo apt-get install hostapd -y
+>sudo apt-get install dnsmasq -y
+>sudo systemctl stop hostapd
+>sudo systemctl stop dnsmasq
+# WLAN Interface fix IP
+>sudo nano /etc/dhcpcd.conf
+interface wlan0
+static ip_address=192.168.223.1/24
+denyinterfaces eth0
+denyinterfaces wlan0
+
+# DHCP Server konfigurieren
+>sudo mv /etc/dnsmasq.conf /etc/dnsmasq.conf.orig
+>sudo nano /etc/dnsmasq.conf
+interface=wlan0
+  dhcp-range=192.168.223.11,192.168.223.100,255.255.255.0,24h
+
+# AP konfigurieren
+>sudo nano /etc/hostapd/hostapd.conf
+interface=wlan0
+bridge=br0
+hw_mode=g
+channel=13
+wmm_enabled=0
+macaddr_acl=0
+auth_algs=1
+ignore_broadcast_ssid=0
+wpa=2
+wpa_key_mgmt=WPA-PSK
+wpa_pairwise=TKIP
+rsn_pairwise=CCMP
+ssid=HomeSweetIOT
+wpa_passphrase=HomeSweetIOT2019
+
+>sudo nano /etc/default/hostapd
+DAEMON_CONF="/etc/hostapd/hostapd.conf"
+
+# Weiterleitung konfigurieren
+>sudo nano /etc/sysctl.conf
+net.ipv4.ip_forward=1
+
+>sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+>sudo sh -c "iptables-save > /etc/iptables.ipv4.nat"
+
+# Internet Verbindung
+>sudo apt-get install bridge-utils
+>sudo brctl addbr br0
+>sudo brctl addif br0 eth0
+>sudo nano /etc/network/interfaces
+auto br0
+iface br0 inet manual
+bridge_ports eth0 wlan0
+
+# Reboot
+>sudo reboot
+
+# SQLite installieren
+>sudo apt-get install sqlite3
+
+# Apache Webserver mit php installieren
+>sudo apt-get update
+>sudo apt-get install apache2
+>sudo apt-get install php7.3
+>sudo apt-get install php7.3-sqlite
+>sudo mkdir /home/pi/sqlite
+>sudo chmod -R 0777 /home/pi/sqlite/
+
+
+# phpLiteAdmin installieren
+# Download http://www.phpliteadmin.org/download/
+>sudo mdir /var/www/html/phpliteadmin
+>sudo chmod -R 0777 /var/wwwhtml/phpliteadmin/
+# WinSCP verwenden und /var_www_phpliteadmin nach /var/www/html/phpliteadmin kopieren
+>sudo chmod -R 0777 /var/www/html/phpliteadmin/
+# Webseite: IP/phpliteadmin
+# Passwort: admin
+
+

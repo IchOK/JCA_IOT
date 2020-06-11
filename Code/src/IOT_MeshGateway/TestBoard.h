@@ -6,15 +6,11 @@
 //######################################################################
 //-- HARDWARE --
 //######################################################################
-  #define HOSTNAME          "MeshGateway"
-  #define DEBUGLEVEL        9
-  #define DEBUGLEVEL_M      0
-  #define STATION_SSID      "HomeSweetIOT"
-  #define STATION_PASSWORD  "HomeSweetIOT2019"
-  #define STATION_PORT      5555
-  #define PIN_LED           LED_BUILTIN
+  #define HOSTNAME    "TestBoard"
+  #define DEBUGLEVEL  5
+  #define DEBUGLEVEL_M  0
+  #define PIN_LED     LED_BUILTIN
 
-  uint8_t station_ip[4] =   {192,168,223,1}; // Node-RED
   bool LED;
 
 //######################################################################

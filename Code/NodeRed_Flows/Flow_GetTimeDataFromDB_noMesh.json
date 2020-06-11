@@ -1,0 +1,183 @@
+[
+    {
+        "id": "961c0a0e.e81688",
+        "type": "tab",
+        "label": "Aqua - TimeData",
+        "disabled": false,
+        "info": "Ermittlen der Jahreszeitabhängigen Klima und Futterdaten"
+    },
+    {
+        "id": "676ac819.564fa8",
+        "type": "function",
+        "z": "961c0a0e.e81688",
+        "name": "SELECT * zeitverlauf",
+        "func": "msg.topic = \"SELECT * FROM zeitverlauf order by Tag\";\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 320,
+        "y": 60,
+        "wires": [
+            [
+                "f5dcfa08.4799a8"
+            ]
+        ]
+    },
+    {
+        "id": "f5dcfa08.4799a8",
+        "type": "mysql",
+        "z": "961c0a0e.e81688",
+        "mydb": "3780e74b.67ffb8",
+        "name": "DB Aquarium",
+        "x": 550,
+        "y": 60,
+        "wires": [
+            [
+                "59c4eef4.e2c14",
+                "57cc6223.90621c"
+            ]
+        ]
+    },
+    {
+        "id": "59c4eef4.e2c14",
+        "type": "function",
+        "z": "961c0a0e.e81688",
+        "name": "Find ActData",
+        "func": "var newMsg;\n\nvar now = new Date();\nvar start = new Date(now.getFullYear(), 0, 0);\nvar diff = now - start;\nvar oneDay = 1000 * 60 * 60 * 24;\nvar day = Math.floor(diff / oneDay)\nvar data = {\"dayx\":day};\ndata[\"hour\"]=now.getHours() + now.getMinutes()/60 + now.getSeconds()/3600;\n\nvar i,j;\nfor (i=1;i<msg.payload.length;i++){\n    if (msg.payload[i-1][\"Tag\"]<=day && msg.payload[i][\"Tag\"]>day){\n        var aTags = Object.keys(msg.payload[i]);\n        var aValS = Object.values(msg.payload[i-1]);\n        var aValE = Object.values(msg.payload[i]);\n        var dayFactor = (day - msg.payload[i-1][\"Tag\"]) / (msg.payload[i][\"Tag\"] - msg.payload[i-1][\"Tag\"]);\n        data[\"dayFactor\"] = dayFactor;\n        data[\"dayS\"] = msg.payload[i-1];\n        data[\"dayE\"] = msg.payload[i];\n        data[\"dayLen\"] = Object.keys(msg.payload[i]).length;\n        for (j=0;j<aTags.length;j++){\n            if (aTags[j] != \"Tag\"){\n                data[aTags[j]] = aValS[j] + (dayFactor * (aValE[j] - aValS[j]));\n            }\n        }\n    }\n}\n\nnewMsg = {topic:'aktDay',payload:data};\n\nreturn newMsg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 210,
+        "y": 180,
+        "wires": [
+            [
+                "a5ab2e13.be45a",
+                "57cc6223.90621c",
+                "72761107.1aa4a"
+            ]
+        ]
+    },
+    {
+        "id": "57cc6223.90621c",
+        "type": "debug",
+        "z": "961c0a0e.e81688",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 670,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "8b3b8dcb.0c1c4",
+        "type": "inject",
+        "z": "961c0a0e.e81688",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "600",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 110,
+        "y": 60,
+        "wires": [
+            [
+                "676ac819.564fa8"
+            ]
+        ]
+    },
+    {
+        "id": "ec7541fd.77f52",
+        "type": "udp out",
+        "z": "961c0a0e.e81688",
+        "name": "Send Request",
+        "addr": "192.168.23.22",
+        "iface": "",
+        "port": "2300",
+        "ipv": "udp4",
+        "outport": "43113",
+        "base64": false,
+        "multicast": "false",
+        "x": 680,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "a5ab2e13.be45a",
+        "type": "function",
+        "z": "961c0a0e.e81688",
+        "name": "SetTemp",
+        "func": "var sollTemp;\nif (msg.payload.hour < (msg.payload.LichtEin - 3)  || msg.payload.hour > msg.payload.LichtAus){\n    sollTemp = msg.payload.TempMax -0.5;\n}else{\n    sollTemp = msg.payload.TempMax;\n}\nvar newMsg = { topic:\"SetTemp\", payload: \"Set;SollTemp;\"+sollTemp };\nreturn newMsg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 400,
+        "y": 260,
+        "wires": [
+            [
+                "ec7541fd.77f52",
+                "913c35ae.e9e238"
+            ]
+        ]
+    },
+    {
+        "id": "d5ade745.106d88",
+        "type": "udp in",
+        "z": "961c0a0e.e81688",
+        "name": "Recv Request",
+        "iface": "",
+        "port": "43113",
+        "ipv": "udp4",
+        "multicast": "false",
+        "group": "",
+        "datatype": "utf8",
+        "x": 410,
+        "y": 220,
+        "wires": [
+            [
+                "57cc6223.90621c"
+            ]
+        ]
+    },
+    {
+        "id": "72761107.1aa4a",
+        "type": "function",
+        "z": "961c0a0e.e81688",
+        "name": "SetFutter",
+        "func": "var sValue = \"WriteValue:0\";\n//Sync Uhrzeit\nvar now = new Date();\nvar seconds = (now.getHours()*60 + now.getMinutes())*60 + now.getSeconds();\nsValue += \";Sekunden:\" + seconds; \n\n//Licht werte\nsValue += \";Licht_WertEin:\" + msg.payload.LichtEin; \nsValue += \";Licht_WertAus:\" + msg.payload.LichtAus; \n\n//Futter werte\n// zähle Füterungen\nvar futterCount = 1;\nif (msg.payload.dayS.Futter1 > 0){ futterCount++; }\nif (msg.payload.dayS.Futter2 > 0){ futterCount++; }\nif (msg.payload.dayS.Futter3 > 0){ futterCount++; }\nif (msg.payload.dayS.Futter4 > 0){ futterCount++; }\nvar futterStep = (msg.payload.LichtAus - msg.payload.LichtEin) / futterCount;\nvar futterAct = msg.payload.LichtEin + futterStep;\n\nif (msg.payload.dayS.Futter1 > 0){\n    var f1Start = Number.parseFloat(futterAct).toFixed(2);\n    var f1Len = msg.payload.dayS.Futter1;\n    futterAct += futterStep;\n} else {\n    var f1Start = 0;\n    var f1Len = 0;\n}    \nif (msg.payload.dayS.Futter2 > 0){\n    var f2Start = Number.parseFloat(futterAct).toFixed(2);\n    var f2Len = msg.payload.dayS.Futter2;\n    futterAct += futterStep;\n} else {\n    var f2Start = 0;\n    var f2Len = 0;\n}    \nif (msg.payload.dayS.Futter3 > 0){\n    var f3Start = Number.parseFloat(futterAct).toFixed(2);\n    var f3Len = msg.payload.dayS.Futter3;\n    futterAct += futterStep;\n} else {\n    var f3Start = 0;\n    var f3Len = 0;\n}    \nif (msg.payload.dayS.Futter4 > 0){\n    var f4Start = Number.parseFloat(futterAct).toFixed(2);\n    var f4Len = msg.payload.dayS.Futter4;\n    futterAct += futterStep;\n} else {\n    var f4Start = 0;\n    var f4Len = 0;\n}    \n\nsValue += \";Futter1_WertStart:\" + f1Start; \nsValue += \";Futter1_Sekunden:\" + f1Len; \nsValue += \";Futter2_WertStart:\" + f2Start; \nsValue += \";Futter2_Sekunden:\" + f2Len; \nsValue += \";Futter3_WertStart:\" + f3Start; \nsValue += \";Futter3_Sekunden:\" + f3Len; \nsValue += \";Futter4_WertStart:\" + f4Start; \nsValue += \";Futter4_Sekunden:\" + f4Len; \n\nvar newMsg = { topic:\"SetFutter\", payload: sValue };\nreturn newMsg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 420,
+        "y": 380,
+        "wires": [
+            [
+                "913c35ae.e9e238"
+            ]
+        ]
+    },
+    {
+        "id": "913c35ae.e9e238",
+        "type": "debug",
+        "z": "961c0a0e.e81688",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 670,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "3780e74b.67ffb8",
+        "type": "MySQLdatabase",
+        "z": "",
+        "host": "192.168.23.15",
+        "port": "3306",
+        "db": "aquarium",
+        "tz": ""
+    }
+]

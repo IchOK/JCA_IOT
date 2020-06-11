@@ -1,0 +1,440 @@
+[
+    {
+        "id": "f14055f.5152fa8",
+        "type": "tab",
+        "label": "UI KlimaData",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "7ba3f2d0.7711fc",
+        "type": "ui_chart",
+        "z": "f14055f.5152fa8",
+        "name": "",
+        "group": "270e4484.d3a9ec",
+        "order": 4,
+        "width": "12",
+        "height": "6",
+        "label": "chart",
+        "chartType": "line",
+        "legend": "true",
+        "xformat": "auto",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "23",
+        "ymax": "28",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "86400",
+        "cutout": 0,
+        "useOneColor": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "useOldStyle": true,
+        "outputs": 1,
+        "x": 490,
+        "y": 300,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "72719c66.352794",
+        "type": "ui_button",
+        "z": "f14055f.5152fa8",
+        "name": "",
+        "group": "270e4484.d3a9ec",
+        "order": 1,
+        "width": "2",
+        "height": "1",
+        "passthru": false,
+        "label": "Now",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "icon": "",
+        "payload": "0",
+        "payloadType": "num",
+        "topic": "",
+        "x": 110,
+        "y": 80,
+        "wires": [
+            [
+                "b443a59e.6c4578"
+            ]
+        ]
+    },
+    {
+        "id": "2cdf584a.ed84c8",
+        "type": "function",
+        "z": "f14055f.5152fa8",
+        "name": "SELECT Trending",
+        "func": "var now = new Date();\nvar timeStart = new Date(now.getTime() + 120 * 60 * 1000 + ((msg.payload - 1) * 24 * 60 * 60 *1000)).toISOString().slice(0, 19).replace('T', ' ');\nvar timeEnde = new Date(now.getTime() + 120 * 60 * 1000 + (msg.payload * 24 * 60 * 60 *1000)).toISOString().slice(0, 19).replace('T', ' ');\n\nmsg.topic = \"SELECT * FROM trending WHERE Time > '\" + timeStart + \"' AND Time < '\" + timeEnde + \"'\";\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 250,
+        "y": 220,
+        "wires": [
+            [
+                "58bda20c.cdd54c",
+                "9c1d6e38.e00cd"
+            ]
+        ]
+    },
+    {
+        "id": "58bda20c.cdd54c",
+        "type": "mysql",
+        "z": "f14055f.5152fa8",
+        "mydb": "3780e74b.67ffb8",
+        "name": "DB Aquarium",
+        "x": 470,
+        "y": 220,
+        "wires": [
+            [
+                "ff731716.243bc8",
+                "9c1d6e38.e00cd"
+            ]
+        ]
+    },
+    {
+        "id": "ff731716.243bc8",
+        "type": "function",
+        "z": "f14055f.5152fa8",
+        "name": "Response2Chart",
+        "func": "var aData = [];\nvar i,j,anz;\nvar oChart = [];\nvar newMsg;\n\nanz = 0;\nfor (i=0; i<Object.keys(msg.payload[0]).length; i++){\n    if(Object.keys(msg.payload[0])[i] != \"Time\"){\n        anz += 1;\n        var oRecord = [];\n        aData.push({key:Object.keys(msg.payload[0])[i],values:oRecord});\n    }\n}\nfor (i=0; i<msg.payload.length; i++){\n    for (j=0; j<anz; j++){\n        var oRecord = [];\n        oRecord.push(Date.parse(msg.payload[i][\"Time\"]));\n        oRecord.push(msg.payload[i][aData[j].key]);\n        aData[j].values.push(oRecord);\n        if (i==0){\n            oChart.push(aData[j].key);\n        }\n    }\n}\n\nnewMsg = {topic:oChart,payload:aData};\nreturn newMsg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 290,
+        "y": 300,
+        "wires": [
+            [
+                "7ba3f2d0.7711fc"
+            ]
+        ]
+    },
+    {
+        "id": "7e6e7003.14af5",
+        "type": "ui_button",
+        "z": "f14055f.5152fa8",
+        "name": "",
+        "group": "270e4484.d3a9ec",
+        "order": 2,
+        "width": "2",
+        "height": "1",
+        "passthru": false,
+        "label": "vor 1/2 Tag",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "icon": "",
+        "payload": "-0.5",
+        "payloadType": "num",
+        "topic": "",
+        "x": 130,
+        "y": 160,
+        "wires": [
+            [
+                "b443a59e.6c4578"
+            ]
+        ]
+    },
+    {
+        "id": "9c1d6e38.e00cd",
+        "type": "debug",
+        "z": "f14055f.5152fa8",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 670,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "b443a59e.6c4578",
+        "type": "ui_numeric",
+        "z": "f14055f.5152fa8",
+        "name": "",
+        "label": "numeric",
+        "tooltip": "",
+        "group": "270e4484.d3a9ec",
+        "order": 3,
+        "width": "8",
+        "height": "1",
+        "passthru": true,
+        "topic": "",
+        "format": "{{value}}",
+        "min": "-20",
+        "max": "0",
+        "step": "0.1",
+        "x": 320,
+        "y": 80,
+        "wires": [
+            [
+                "2cdf584a.ed84c8",
+                "9c1d6e38.e00cd"
+            ]
+        ]
+    },
+    {
+        "id": "e17f18a4.1e3aa8",
+        "type": "inject",
+        "z": "f14055f.5152fa8",
+        "name": "",
+        "topic": "",
+        "payload": "0",
+        "payloadType": "num",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 110,
+        "y": 40,
+        "wires": [
+            [
+                "b443a59e.6c4578"
+            ]
+        ]
+    },
+    {
+        "id": "5715c923.c10858",
+        "type": "inject",
+        "z": "f14055f.5152fa8",
+        "name": "",
+        "topic": "",
+        "payload": "-0.5",
+        "payloadType": "num",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 110,
+        "y": 120,
+        "wires": [
+            [
+                "b443a59e.6c4578"
+            ]
+        ]
+    },
+    {
+        "id": "daa57433.d01d58",
+        "type": "ui_form",
+        "z": "f14055f.5152fa8",
+        "name": "Data",
+        "label": "Datapoints",
+        "group": "200e33d0.c9742c",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "options": [
+            {
+                "label": "Name",
+                "value": "Name",
+                "type": "text",
+                "required": true
+            },
+            {
+                "label": "Set",
+                "value": "Set",
+                "type": "switch",
+                "required": true
+            },
+            {
+                "label": "Value",
+                "value": "Value",
+                "type": "text",
+                "required": false
+            }
+        ],
+        "formValue": {
+            "Name": "",
+            "Set": false,
+            "Value": ""
+        },
+        "payload": "",
+        "submit": "OK",
+        "cancel": "Abbruch",
+        "topic": "",
+        "x": 260,
+        "y": 380,
+        "wires": [
+            [
+                "9c1d6e38.e00cd",
+                "dc4b464d.af1f28"
+            ]
+        ]
+    },
+    {
+        "id": "bd1464db.b09348",
+        "type": "debug",
+        "z": "f14055f.5152fa8",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 630,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "479aeafa.683264",
+        "type": "udp out",
+        "z": "f14055f.5152fa8",
+        "name": "Send Request",
+        "addr": "192.168.23.22",
+        "iface": "",
+        "port": "2300",
+        "ipv": "udp4",
+        "outport": "43114",
+        "base64": false,
+        "multicast": "false",
+        "x": 640,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "dc4b464d.af1f28",
+        "type": "function",
+        "z": "f14055f.5152fa8",
+        "name": "CreatMsg",
+        "func": "if(msg.payload.Set){\n    var newMsg = { topic:\"Set\", payload: \"Set;\"+msg.payload.Name+\";\"+msg.payload.Value };\n}else{\n    var newMsg = { topic:\"Get\", payload: \"Get;\"+msg.payload.Name };\n}\nreturn newMsg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 420,
+        "y": 380,
+        "wires": [
+            [
+                "bd1464db.b09348",
+                "479aeafa.683264"
+            ]
+        ]
+    },
+    {
+        "id": "faf580c2.4dcdd",
+        "type": "udp in",
+        "z": "f14055f.5152fa8",
+        "name": "Recv Request",
+        "iface": "",
+        "port": "43114",
+        "ipv": "udp4",
+        "multicast": "false",
+        "group": "",
+        "datatype": "utf8",
+        "x": 230,
+        "y": 440,
+        "wires": [
+            [
+                "bd1464db.b09348",
+                "61e03501.308bfc"
+            ]
+        ]
+    },
+    {
+        "id": "4c3927c4.a2bcf8",
+        "type": "ui_text",
+        "z": "f14055f.5152fa8",
+        "group": "200e33d0.c9742c",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "{{msg.topic}}",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "x": 610,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "c84fecc1.d9d19",
+        "type": "function",
+        "z": "f14055f.5152fa8",
+        "name": "",
+        "func": "var msgNew = {topic:\"Error\",payload:Object.keys(msg.payload).length};\n\nswitch(Object.keys(msg.payload).length){\n    case 2:\n        msgNew.topic = msg.payload.col1;\n        msgNew.payload = msg.payload.col2;\n        break;\n        \n    case 3:\n        msgNew.topic = msg.payload.col2;\n        msgNew.payload = msg.payload.col3;\n        break;\n        \n}\n\nreturn msgNew;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 450,
+        "y": 500,
+        "wires": [
+            [
+                "4c3927c4.a2bcf8",
+                "bd1464db.b09348"
+            ]
+        ]
+    },
+    {
+        "id": "61e03501.308bfc",
+        "type": "csv",
+        "z": "f14055f.5152fa8",
+        "name": "",
+        "sep": ";",
+        "hdrin": "",
+        "hdrout": "",
+        "multi": "one",
+        "ret": "\\n",
+        "temp": "",
+        "skip": "0",
+        "x": 290,
+        "y": 500,
+        "wires": [
+            [
+                "c84fecc1.d9d19",
+                "bd1464db.b09348"
+            ]
+        ]
+    },
+    {
+        "id": "270e4484.d3a9ec",
+        "type": "ui_group",
+        "z": "",
+        "name": "KlimaTemp",
+        "tab": "39e8c9b3.e17986",
+        "order": 3,
+        "disp": true,
+        "width": "12",
+        "collapse": true
+    },
+    {
+        "id": "3780e74b.67ffb8",
+        "type": "MySQLdatabase",
+        "z": "",
+        "host": "192.168.23.15",
+        "port": "3306",
+        "db": "aquarium",
+        "tz": ""
+    },
+    {
+        "id": "200e33d0.c9742c",
+        "type": "ui_group",
+        "z": "",
+        "name": "Datapoints",
+        "tab": "39e8c9b3.e17986",
+        "order": 4,
+        "disp": true,
+        "width": "6",
+        "collapse": true
+    },
+    {
+        "id": "39e8c9b3.e17986",
+        "type": "ui_tab",
+        "z": "",
+        "name": "Aqua",
+        "icon": "pets",
+        "disabled": false,
+        "hidden": false
+    }
+]
