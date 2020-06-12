@@ -5,17 +5,20 @@
  *    V1.0.0   Erstellt   30.10.2019   JCA
  **********************************************/
 
-#ifndef _JCA_IOT_define_H
-#define _JCA_IOT_define_H
+#ifndef _JCA_IOT_ELEMENT_define_H
+#define _JCA_IOT_ELEMENT_define_H
 
-#define JCA_IOT_HANDLER_JSON_DOCSIZE 1024
-#define JCA_IOT_HANDLER_FILE_MAXSIZE 4096
+#define JCA_IOT_ELEMENT_HANDLER_JSON_DOCSIZE 1024
+#define JCA_IOT_ELEMENT_HANDLER_FILE_MAXSIZE 4096
 
 #define JCA_IOT_ELEMENT_NAME_LEN 30
 
 #define JCA_IOT_ELEMENT_DATA_BOOL 1
 #define JCA_IOT_ELEMENT_DATA_INT 2
 #define JCA_IOT_ELEMENT_DATA_FLOAT 3
+
+#define JCA_IOT_ELEMENT_TYPE_DI 1
+#define JCA_IOT_ELEMENT_TYPE_DO 2
 
 /* Quality-Code Aufbau        QQSSSSLL
                               00xxxxxx   Bad         Schlecht
@@ -39,13 +42,13 @@
                               xxxxxx10   HighLimit   Wert ist am oberen Bereich begrenzt
                               xxxxxx11   Constant   Wert ist eingefrohren
 */
-#define JCA_IOT_QC_GOOD       0b10000000
-#define JCA_IOT_QC_INIT       0b10111100
-#define JCA_IOT_QC_DEFAULT    0b10111111
-#define JCA_IOT_QC_CREAT      0b01111100
-#define JCA_IOT_QC_COMMFAULT  0b00011000
-#define JCA_IOT_QC_COMMLAST   0b01010100
-#define JCA_IOT_QC_CONFCREAT  0b00000100
+#define JCA_IOT_ELEMENT_QC_GOOD       0b10000000
+#define JCA_IOT_ELEMENT_QC_INIT       0b10111100
+#define JCA_IOT_ELEMENT_QC_DEFAULT    0b10111111
+#define JCA_IOT_ELEMENT_QC_CREAT      0b01111100
+#define JCA_IOT_ELEMENT_QC_COMMFAULT  0b00011000
+#define JCA_IOT_ELEMENT_QC_COMMLAST   0b01010100
+#define JCA_IOT_ELEMENT_QC_CONFCREAT  0b00000100
 
 
 #endif

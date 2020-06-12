@@ -1,31 +1,37 @@
 /**********************************************
- * Class:   JCA_IOT_HANDLER
+ * Class:   JCA_IOT_ELEMENT_Handler
  * Info:    Die Klasse stellt den Handler für
  *          alle IOT-Elemente dar und bietet die
  *          die Schnittstelle zum Mesh-Netzwerk
  * Version:
- *    V1.0.0   Erstellt    02.11.2019  JCA
+ *    V1.0.0  Erstellt    02.11.2019  JCA
  *    -add Properties
  *       -- Elements Vector
  *       -- CreateElement Map
  *       -- JDoc StaticJsonDocument
- *       -- Name, ErrorTest, QC, ConfigFile
+ *       -- name, ErrorTest, QC, ConfigFile
  *    -add Methoden
  *       -- cHandler
  *       -- addElement
  *       -- config
  *       -- update
+ *    V1.0.1  Change      12.06.2020  JCA
+ *    -remove Properties
+ *       -- name -> gehört zum Mesh, nicht zu den Elementen
+ *    -change Methoden
+ *       -- config -> name
  **********************************************/
 
-#ifndef _JCA_IOT_HANDLER_H
-#define _JCA_IOT_HANDLER_H
+#ifndef _JCA_IOT_ELEMENT_HANDLER_H
+#define _JCA_IOT_ELEMENT_HANDLER_H
 
 //Include extrenal
 #include <map>
 #include <vector>
 #include <ArduinoJson.h>
 #include <FS.h>
-#include "JCA_IOT_ELEMENT.hpp"
+
+#include "JCA_IOT_ELEMENT_Root.hpp"
 
 namespace JCA{ namespace IOT{ namespace ELEMENT{
    
@@ -50,10 +56,9 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
        *          CreateElement Liste eingetragen werden.
        ***************************************/
       std::vector<ELEMENT::cRoot*> Elements;
-      char Name[JCA_IOT_ELEMENT_NAME_LEN];
       String ErrorText;
       String ConfigFileName;
-      StaticJsonDocument<JCA_IOT_HANDLER_JSON_DOCSIZE> JDoc;
+      StaticJsonDocument<JCA_IOT_ELEMENT_HANDLER_JSON_DOCSIZE> JDoc;
       unsigned char QC;
       
       /***************************************
@@ -61,7 +66,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
        * Info:  Der Konstruktor initialisiert den Quality-Code
        ***************************************/
       cHandler(){
-        QC = JCA_IOT_QC_CREAT;
+        QC = JCA_IOT_ELEMENT_QC_CREAT;
       }
       
       /***************************************
@@ -72,7 +77,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
        * Parameter:
        *        DiffMillis [uint32_t] vergangene Zeit seit letztem Aufruf.
        ***************************************/
-      void update(uint32_t DiffMillis) {
+      void update(uint32_t DiffMillis, uint32_t Timestamp) {
         #if DEBUGLEVEL >= 3
           Serial.println(F("START - cHandler.update()"));
           Serial.printf("  DiffMillis:%i\r\n",DiffMillis);
@@ -106,7 +111,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
           // UPDATE ELEMENT / DATA
           // Die Update Funktion ist spezifisch in jedem Element definiert {update(Millis)}
           //------------------------
-          Elements[e]->update(DiffMillis);
+          Elements[e]->update(DiffMillis, Timestamp);
         }
         #if DEBUGLEVEL >= 3
           Serial.println(F("DONE - cHandler.update()"));
@@ -120,8 +125,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
        *        - INIT      + Filesystem initialisieren
        *                    + Datei öffnen und Länge prüfen
        *                    + Json-Konfig einlesen
-       *        - CONFIG    + Global : Node-Name
-       *                    + Kommunikations-Protokolle
+       *        - CONFIG    + Kommunikations-Protokolle
        *                    + Elemente
        * Parameter:
        *        InConfigFile [char*] Name/Pfad der Konfigurations-Datei
@@ -136,7 +140,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
         // Initialisierung des Filesystems
         if (!SPIFFS.begin()) {
           // .. Bei Fehler wird der Quality-Code angepasst und 
-          QC = JCA_IOT_QC_CONFCREAT;
+          QC = JCA_IOT_ELEMENT_QC_CONFCREAT;
           // .. der Fehlertext geschrieben.
           ErrorText = F("Failed to config file");
           #if DEBUGLEVEL >= 1
@@ -148,7 +152,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
         File ConfigFile = SPIFFS.open(ConfigFileName, "r");
         if(!ConfigFile){
           // .. Bei Fehler wird der Quality-Code angepasst und 
-          QC = JCA_IOT_QC_CONFCREAT;
+          QC = JCA_IOT_ELEMENT_QC_CONFCREAT;
           // .. der Fehlertext geschrieben.
           ErrorText = F("Failed to config file");
           #if DEBUGLEVEL >= 1
@@ -159,9 +163,9 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
         // Die Datei-Länge wird geprüft, um sicher zu stellen 
         //  dass der JSON-Speicherbereich ausreicht.
         size_t Size = ConfigFile.size();
-        if(Size > JCA_IOT_HANDLER_FILE_MAXSIZE){
+        if(Size > JCA_IOT_ELEMENT_HANDLER_FILE_MAXSIZE){
           // .. Ist die Datei zu gross wird der Quality-Code angepasst und 
-          QC = JCA_IOT_QC_CONFCREAT;
+          QC = JCA_IOT_ELEMENT_QC_CONFCREAT;
           // .. der Fehlertext geschrieben.
           ErrorText = F("Config file size is too large");
           #if DEBUGLEVEL >= 1
@@ -173,7 +177,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
         DeserializationError JError = deserializeJson(JDoc, ConfigFile);
         if(JError){
           // .. Bei Fehler wird der Quality-Code angepasst und 
-          QC = JCA_IOT_QC_CONFCREAT;
+          QC = JCA_IOT_ELEMENT_QC_CONFCREAT;
           // .. der Fehlertext geschrieben.
           ErrorText = F("deserialize FAILD: ");
           ErrorText += JError.c_str();
@@ -184,23 +188,6 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
         }
         //-------------------------------------------------------------------------------------------------------------
         
-        //-------------------------------------------------------------------------------------------------------------
-        // CONFIG - Node Einstellunegn
-        #if DEBUGLEVEL >= 2
-          Serial.println(F("  START - global Settings"));
-        #endif
-        // Das JSON-Dokument -> Objekt
-        JsonObject JConfig = JDoc.as<JsonObject>();
-        // Ist ein Name vorhanden ..
-        if (JConfig.containsKey("name")){
-          // .. wird dieser als Node-Name verwendet.
-          strncpy(Name, JConfig["name"], JCA_IOT_ELEMENT_NAME_LEN);
-        }else{
-          // .. sonst wird die Chip-ID als eindeutige Identifikations verwendet.
-          itoa(ESP.getChipId(),Name, JCA_IOT_ELEMENT_NAME_LEN);
-        }
-        //-------------------------------------------------------------------------------------------------------------
-
         //-------------------------------------------------------------------------------------------------------------
         // CONFIG - Netzwerk Einstellungen
         // TODO
@@ -213,6 +200,9 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
         //    - File Upload
         //    - OnBoard-Blink Funktion
         //-------------------------------------------------------------------------------------------------------------
+        #if DEBUGLEVEL >= 2
+          Serial.println(F("  START - global Settings"));
+        #endif
 
         //-------------------------------------------------------------------------------------------------------------
         // CONFIG - Bussysteme
@@ -233,8 +223,6 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
         //-------------------------------------------------------------------------------------------------------------
 
         #if DEBUGLEVEL >= 2
-          Serial.print(F("    Node Name:"));
-          Serial.println(Name);
           Serial.println(F("  DONE - global Settings"));
         #endif
 
@@ -262,7 +250,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
               CreateElement[JElement["type"].as<String>()](JElement, Elements);
             }else{
               // .. sonst wird ein Fehler ausgegeben.
-              QC = JCA_IOT_QC_CONFCREAT;
+              QC = JCA_IOT_ELEMENT_QC_CONFCREAT;
               ErrorText = F("Unable to create Type ");
               ErrorText += JElement["type"].as<String>();
               #if DEBUGLEVEL >= 1

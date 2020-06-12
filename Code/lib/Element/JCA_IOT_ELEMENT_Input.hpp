@@ -13,7 +13,7 @@
 #ifndef _JCA_IOT_ELEMENT_INPUT_H
 #define _JCA_IOT_ELEMENT_INPUT_H
 
-#include "JCA_IOT_define.h"
+#include "JCA_IOT_ELEMENT_define.h"
 
 namespace JCA{ namespace IOT{ namespace ELEMENT{
    /**********************************************
@@ -40,7 +40,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
       
       cInput(const unsigned char InType) {
          Type = InType;
-         QC = JCA_IOT_QC_CREAT;
+         QC = JCA_IOT_ELEMENT_QC_CREAT;
       }
       
       void init(const char* InName) {
@@ -50,7 +50,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
       void config(const unsigned char Element, const unsigned char Data) {
          ElementIndex = Element;
          DataIndex = Data;
-         QC = JCA_IOT_QC_INIT;
+         QC = JCA_IOT_ELEMENT_QC_INIT;
       }
       
       bool isGood() {

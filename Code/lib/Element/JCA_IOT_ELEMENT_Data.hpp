@@ -13,7 +13,7 @@
 #ifndef _JCA_IOT_ELEMENT_DATA_H
 #define _JCA_IOT_ELEMENT_DATA_H
 
-#include "JCA_IOT_define.h"
+#include "JCA_IOT_ELEMENT_define.h"
 
 namespace JCA{ namespace IOT{ namespace ELEMENT{
    /**********************************************
@@ -37,12 +37,12 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
       
       cData(const unsigned char InType) {
          Type = InType;
-         QC = JCA_IOT_QC_CREAT;
+         QC = JCA_IOT_ELEMENT_QC_CREAT;
       }
 	  
 	   void init(const char* InName) {
          strncpy(Name, InName, JCA_IOT_ELEMENT_NAME_LEN);
-         QC = JCA_IOT_QC_INIT;
+         QC = JCA_IOT_ELEMENT_QC_INIT;
       }
       
       bool isGood() {
@@ -71,7 +71,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
 	  
       void config(const bool InValue) {
          Value = InValue;
-         QC = JCA_IOT_QC_DEFAULT;
+         QC = JCA_IOT_ELEMENT_QC_DEFAULT;
       }
    };
    
@@ -96,7 +96,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
       
       void config(const int32_t InValue) {
          Value = InValue;
-         QC = JCA_IOT_QC_DEFAULT;
+         QC = JCA_IOT_ELEMENT_QC_DEFAULT;
       }
    };
    
@@ -121,7 +121,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
       
       void config(const float InValue) {
          Value = InValue;
-         QC = JCA_IOT_QC_DEFAULT;
+         QC = JCA_IOT_ELEMENT_QC_DEFAULT;
       }
    };
    

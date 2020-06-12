@@ -1,5 +1,5 @@
 /**********************************************
- * Class:   JCA_IOT_ELEMENT
+ * Class:   JCA_IOT_ELEMENT_ROOT
  * Info:    Die Klasse ist der Ursprung für alle 
  *          JCA_IOT_ELEMENT Klassen.
  *          Sie definiert den Aufbau der Eingänge
@@ -18,10 +18,10 @@
  *       -- config
  **********************************************/
 
-#ifndef _JCA_IOT_ELEMENT_H
-#define _JCA_IOT_ELEMENT_H
+#ifndef _JCA_IOT_ELEMENT_ROOT_H
+#define _JCA_IOT_ELEMENT_ROOT_H
 
-#include "JCA_IOT_define.h"
+#include "JCA_IOT_ELEMENT_define.h"
 #include "JCA_IOT_ELEMENT_Input.hpp"
 #include "JCA_IOT_ELEMENT_Data.hpp"
 
@@ -60,7 +60,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
       cRoot(const char* InName, const unsigned char InType){
          strncpy(Name, InName, JCA_IOT_ELEMENT_NAME_LEN);
          Type = InType;
-         QC = JCA_IOT_QC_CREAT;
+         QC = JCA_IOT_ELEMENT_QC_CREAT;
          
          /*
          //------------------------------
@@ -89,7 +89,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
          */ 
       }
       
-      virtual void update(uint32_t DiffMillis) {
+      virtual void update(uint32_t DiffMillis, uint32_t Timestamp) {
          
          /*
          //------------------------------
@@ -214,18 +214,18 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
          JsonArray JsonConfig;
          char ConfigName[JCA_IOT_ELEMENT_NAME_LEN];
          
-         QC = JCA_IOT_QC_INIT;
+         QC = JCA_IOT_ELEMENT_QC_INIT;
          //Init Inputs
          if (JsonObj.containsKey("input")){
             JsonConfig = JsonObj["input"];
             for(JsonObject ConfigInput : JsonConfig){
                //check JsonObject for needed Keys
-               if (ConfigInput.containsKey("name") && ConfigInput.containsKey("element") && ConfigInput.containsKey("tag")){
+               if (ConfigInput.containsKey("name") && ConfigInput.containsKey("element") && ConfigInput.containsKey("data")){
                   strncpy(ConfigName, ConfigInput["name"], JCA_IOT_ELEMENT_NAME_LEN);
                   //search Input in Vector by Name
                   for (int i = 0; i < Input.size(); i++){
                      if (strcmp(Input[i]->Name, ConfigName) == 0){
-                        Input[i]->config(ConfigInput["element"].as<unsigned char>(), ConfigInput["tag"].as<unsigned char>());
+                        Input[i]->config(ConfigInput["element"].as<unsigned char>(), ConfigInput["data"].as<unsigned char>());
                      }
                   }
                }
@@ -267,7 +267,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
                break;
             }
          }
-         if (QC == JCA_IOT_QC_INIT){
+         if (QC == JCA_IOT_ELEMENT_QC_INIT){
             for (int i = 0; i < Data.size(); i++){
                if (!(Data[i]->isGood())){
                   QC = Data[i]->QC;

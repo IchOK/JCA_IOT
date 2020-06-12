@@ -17,9 +17,8 @@
 #ifndef _JCA_IOT_ELEMENT_DO_H
 #define _JCA_IOT_ELEMENT_DO_H
 
-#include "JCA_IOT_ELEMENT.hpp"
-#include "JCA_IOT_ELEMENT_HANDLER.hpp"
-#define JCA_IOT_ELEMENT_TYPE_DO 2
+#include "JCA_IOT_ELEMENT_Root.hpp"
+#include "JCA_IOT_ELEMENT_Handler.hpp"
 
 //Include extrenal
 
@@ -47,7 +46,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
          pinMode(Pin, OUTPUT);
       }
       
-      virtual void update(uint32_t DiffMillis) {
+      virtual void update(uint32_t DiffMillis, uint32_t Timestamp) {
          #if DEBUGLEVEL >= 3
             Serial.println(F(" START - cDO.update()"));
             Serial.printf("  Name:%s\r\n",Name);

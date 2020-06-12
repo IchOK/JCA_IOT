@@ -20,8 +20,10 @@
 #include <map>
 #include <vector>
 #include <ArduinoJson.h>
+//Elemente einbinden für Update
+#include "JCA_IOT_ELEMENT_Root.hpp"
 
-#include "JCA_IOT_define.h"
+#include "JCA_IOT_MESH_define.h"
 #include "JCA_IOT_MESH.h"
 
 namespace JCA{ namespace IOT{ namespace MESH{
@@ -72,6 +74,28 @@ namespace JCA{ namespace IOT{ namespace MESH{
       }
     
       /***************************************
+       * Methode: update(JsonObject Data)
+       * Info:  Funktion durchsucht die Elemente nach
+       *        Client-Nachrichten und handelt die
+       *        Server-Listen.
+       * Parameter:
+       *        Elements [vector<ELEMENT::cRoot*>]
+       *            Vector mit allen Elementen der Node
+       *        MeshOut [JsonObject&]
+       *            Puffer für ausgehende Mesh-Telegramme
+       *        DiffMillis [uint32_t]
+       *            Vergangene Zeit seit letztem Aufruf
+       ***************************************/
+      void update(std::vector<ELEMENT::cRoot*> Elements, JsonObject &MeshOut, uint32_t DiffMillis){
+        // TODO
+        // Elemente durchsuchen
+        //    Archiv-Liste durchsuchen
+        //    Alarm-Liste durchsuchen
+        // Server-Watchdogs hochzählen
+        //    Server status updaten / entfernen
+      }
+      
+      /***************************************
        * Methode: sendSrvRequest(JsonObject Data)
        * Info:  Funktion zum empfangen und verarbeiten eines
        *        Server-Publish telegramm.
@@ -86,6 +110,10 @@ namespace JCA{ namespace IOT{ namespace MESH{
         
         // Zu Logging-Server-Liste hinzufügen oder watchdog zurück setzen
         if (Data.msg["logging"]){
+          // Client-Status aktuallisieren
+          State = online;
+          
+          // Server-Liste durchsuchen
           notFound = true;
           id = Data.from;
           for (int srv = 0; srv < LogServers.size(); srv++){
@@ -140,24 +168,6 @@ namespace JCA{ namespace IOT{ namespace MESH{
             ArchivServers.back()->wd = 0;
           }
         }
-      }
-      
-      /***************************************
-       * Methode: sendSrvRequest(JsonObject MeshOut)
-       * Info:  Funktion zur Erstellung eines Server-Request
-       *        Fügt dem MeshOut-Buffer eine Broadcast-Nachricht hinzu
-       ***************************************/
-      void sendSrvRequest(JsonObject &MeshOut){
-        JsonArray Broadcasts;
-        JsonObject Msg;
-        // Falls noch kein Broadcast Eintrag existiert diesen erstellen
-        if (MeshOut->containsKey("broadcast")){
-          Broascasts = MeshOut["broadcast"];
-        }else{
-          Broascasts = MeshOut->createNestedArray("broadcast");
-        }
-        Msg = Broadcasts.createNestedObject();
-        Msg["msgId"] = JCA_IOT_MESH_SRV_REQUEST;
       }
       
       /***************************************
@@ -243,16 +253,37 @@ namespace JCA{ namespace IOT{ namespace MESH{
           Msg["msgId"] = JCA_IOT_MESH_SRV_FAILLOG;
           Msg["type"] = Data.type;
           Msg["data"] = Data.data;
-          }
         }
       }
-      
-      
+
     private:
       clientState State;
       std::vector<serverState> LogServers;
       std::vector<serverState> AlarmServers;
       std::vector<serverState> ArchivServers;
+      
+      /***************************************
+       * Methode: sendSrvRequest(JsonObject MeshOut)
+       * Info:  Funktion zur Erstellung eines Server-Request
+       *        Fügt dem MeshOut-Buffer eine Broadcast-Nachricht hinzu
+       ***************************************/
+      void sendSrvRequest(JsonObject &MeshOut){
+        JsonArray Broadcasts;
+        JsonObject Msg;
+        
+        // Client-Status aktuallisieren
+        State = requesting;
+        
+        // Falls noch kein Broadcast Eintrag existiert diesen erstellen
+        if (MeshOut->containsKey("broadcast")){
+          Broascasts = MeshOut["broadcast"];
+        }else{
+          Broascasts = MeshOut->createNestedArray("broadcast");
+        }
+        Msg = Broadcasts.createNestedObject();
+        Msg["msgId"] = JCA_IOT_MESH_SRV_REQUEST;
+      }
+      
   };
 }}}
 #endif

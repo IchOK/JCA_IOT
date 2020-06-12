@@ -17,9 +17,8 @@
 #ifndef _JCA_IOT_ELEMENT_DI_H
 #define _JCA_IOT_ELEMENT_DI_H
 
-#include "JCA_IOT_ELEMENT.hpp"
-#include "JCA_IOT_ELEMENT_HANDLER.hpp"
-#define JCA_IOT_ELEMENT_TYPE_DI 1
+#include "JCA_IOT_ELEMENT_Root.hpp"
+#include "JCA_IOT_ELEMENT_Handler.hpp"
 
 //Include extrenal
 #include <string.h>
