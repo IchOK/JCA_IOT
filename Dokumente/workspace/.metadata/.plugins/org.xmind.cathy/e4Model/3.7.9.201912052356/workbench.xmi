@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="ASCII"?>
 <application:Application xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:advanced="http://www.eclipse.org/ui/2010/UIModel/application/ui/advanced" xmlns:application="http://www.eclipse.org/ui/2010/UIModel/application" xmlns:basic="http://www.eclipse.org/ui/2010/UIModel/application/ui/basic" xmlns:menu="http://www.eclipse.org/ui/2010/UIModel/application/ui/menu" xmi:id="_4IJG0aeDEeqGmurY0iOaPQ" elementId="org.xmind.cathy.application" contributorURI="platform:/plugin/org.xmind.cathy" selectedElement="_4IJG0qeDEeqGmurY0iOaPQ" bindingContexts="_4IJG-KeDEeqGmurY0iOaPQ">
   <persistedState key="memento" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?>&#xD;&#xA;&lt;workbench>&#xD;&#xA;&lt;mruList/>&#xD;&#xA;&lt;/workbench>"/>
-  <tags>activeSchemeId:org.eclipse.ui.defaultAcceleratorConfiguration</tags>
   <tags>ModelMigrationProcessor.001</tags>
+  <tags>activeSchemeId:org.eclipse.ui.defaultAcceleratorConfiguration</tags>
   <children xsi:type="basic:TrimmedWindow" xmi:id="_4IJG0qeDEeqGmurY0iOaPQ" elementId="org.xmind.cathy.window.main" contributorURI="platform:/plugin/org.xmind.cathy" selectedElement="_4XVZYKeDEeqGmurY0iOaPQ" label="XMind" x="0" y="0" width="1024" height="768">
     <persistedState key="coolBarVisible" value="true"/>
     <persistedState key="perspectiveBarVisible" value="true"/>
@@ -15,11 +15,10 @@
     <children xsi:type="basic:PartSashContainer" xmi:id="_4XVZYKeDEeqGmurY0iOaPQ" selectedElement="_4XVZYaeDEeqGmurY0iOaPQ" horizontal="true">
       <children xsi:type="advanced:PerspectiveStack" xmi:id="_4XVZYaeDEeqGmurY0iOaPQ" elementId="org.eclipse.ui.ide.perspectivestack" containerData="7500" selectedElement="_4ZmDMqeDEeqGmurY0iOaPQ">
         <children xsi:type="advanced:Perspective" xmi:id="_4ZmDMqeDEeqGmurY0iOaPQ" elementId="org.xmind.ui.perspective.mindmapping" selectedElement="_4ZmDM6eDEeqGmurY0iOaPQ" label="Mind Mapping" iconURI="platform:/plugin/org.xmind.ui/icons/xmind.16.png">
-          <children xsi:type="basic:PartSashContainer" xmi:id="_4ZmDM6eDEeqGmurY0iOaPQ" horizontal="true">
+          <children xsi:type="basic:PartSashContainer" xmi:id="_4ZmDM6eDEeqGmurY0iOaPQ" selectedElement="_4ZmDNKeDEeqGmurY0iOaPQ" horizontal="true">
             <children xsi:type="advanced:Placeholder" xmi:id="_4ZmDNKeDEeqGmurY0iOaPQ" elementId="org.eclipse.ui.editorss" containerData="10000" ref="_4ZmDMKeDEeqGmurY0iOaPQ"/>
             <children xsi:type="basic:PartStack" xmi:id="_4ZmDNaeDEeqGmurY0iOaPQ" elementId="org.xmind.ui.stack.right" toBeRendered="false" visible="false" containerData="0">
               <tags>XStack</tags>
-              <tags>active</tags>
               <children xsi:type="basic:Part" xmi:id="_wad0AKeEEeqGmurY0iOaPQ" elementId="org.xmind.ui.modelPart.image" contributorURI="platform:/plugin/org.xmind.ui.mindmap" toBeRendered="false" visible="false" contributionURI="bundleclass://org.xmind.ui.mindmap/org.xmind.ui.internal.e4models.ImagePart" label="%part.image.label" tooltip="%part.image.tooltip" closeable="true">
                 <persistedState key="modelPart.pages.contributionUri" value="bundleclass://org.xmind.ui.gallery/org.xmind.ui.internal.gallery.ClipArtModelPage,bundleclass://org.xmind.ui.iconfinder/org.xmind.ui.internal.iconfinder.IconfinderModelPage"/>
                 <persistedState key="org.xmind.ui.modelPart.currentPageId" value="org.xmind.ui.modelPart.image.pages.clipArt"/>
@@ -34,7 +33,6 @@
               </children>
               <children xsi:type="basic:Part" xmi:id="_wumQ8KeEEeqGmurY0iOaPQ" elementId="org.xmind.ui.modelPart.properties" contributorURI="platform:/plugin/org.xmind.ui.mindmap" toBeRendered="false" visible="false" contributionURI="bundleclass://org.xmind.ui.mindmap/org.xmind.ui.internal.properties.PropertiesPart" label="%part.format.label" tooltip="%part.format.tooltip"/>
               <children xsi:type="basic:Part" xmi:id="_59SjMKeGEeqGmurY0iOaPQ" elementId="org.xmind.ui.modelPart.markers" contributorURI="platform:/plugin/org.xmind.ui.mindmap" toBeRendered="false" visible="false" contributionURI="bundleclass://org.xmind.ui.mindmap/org.xmind.ui.internal.e4models.MarkerPart" label="%part.markers.label" tooltip="%part.markers.tooltip">
-                <tags>active</tags>
                 <menus xmi:id="_59W0oKeGEeqGmurY0iOaPQ" elementId="org.xmind.ui.modelpart.marker.viewmenu">
                   <tags>ViewMenu</tags>
                 </menus>
@@ -81,6 +79,7 @@
       <children xsi:type="basic:PartStack" xmi:id="_4ZmDMaeDEeqGmurY0iOaPQ" elementId="org.eclipse.e4.primaryDataStack" containerData="10000">
         <tags>org.eclipse.e4.primaryDataStack</tags>
         <tags>EditorStack</tags>
+        <tags>active</tags>
       </children>
     </sharedElements>
     <trimBars xmi:id="_4IJG06eDEeqGmurY0iOaPQ" elementId="org.eclipse.ui.main.toolbar" contributorURI="platform:/plugin/org.xmind.cathy">
@@ -432,11 +431,11 @@
   </descriptors>
   <descriptors xmi:id="_W8IhYETZEeaGL5Gu2uBiyA" elementId="org.xmind.ui.modelPart.image" contributorURI="platform:/plugin/org.xmind.ui.mindmap" label="%part.image.label" tooltip="%part.image.tooltip" closeable="true" contributionURI="bundleclass://org.xmind.ui.mindmap/org.xmind.ui.internal.e4models.ImagePart">
     <persistedState key="modelPart.pages.contributionUri" value="bundleclass://org.xmind.ui.gallery/org.xmind.ui.internal.gallery.ClipArtModelPage,bundleclass://org.xmind.ui.iconfinder/org.xmind.ui.internal.iconfinder.IconfinderModelPage"/>
-    <menus xmi:id="_GA8boajiEeqkUcaJnZg0xw" elementId="org.xmind.ui.modelPart.image.menus.clipArt">
+    <menus xmi:id="_vRFvwawnEeqkYf2jz5SDyw" elementId="org.xmind.ui.modelPart.image.menus.clipArt">
       <tags>ViewMenu</tags>
       <tags>org.xmind.ui.modelPart.image.pages.clipArt</tags>
     </menus>
-    <menus xmi:id="_GBUPEKjiEeqkUcaJnZg0xw" elementId="org.xmind.ui.modelPart.image.menus.iconfinder">
+    <menus xmi:id="_vRO5sKwnEeqkYf2jz5SDyw" elementId="org.xmind.ui.modelPart.image.menus.iconfinder">
       <tags>ViewMenu</tags>
       <tags>org.xmind.ui.modelPart.image.pages.iconfinder</tags>
     </menus>

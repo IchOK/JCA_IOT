@@ -156,3 +156,34 @@ Command-line arguments:  -os win32 -ws win32 -arch x86 -data ./workspace -eclips
 
 !ENTRY org.xmind.ui.mindmap 4 4 2020-06-11 22:42:01.897
 !MESSAGE [save] start...[save] add state...[save] clean...[save] doSave start...[save] doSaveWorkbookToTempStorage start...[save] doSaveWorkbookToTempStorage over...[save] doSaveWorkbookToURIFromSource start...[save] new file...[save] serialize start...[save] new FileOutputStream...[save] setOutputStream...[save] serialize success...[save] doSaveWorkbookToURIFromSource over...[save] doSave over...[save] success...over...
+!SESSION 2020-06-11 23:08:43.617 -----------------------------------------------
+eclipse.buildId=R3.7.9.201912052356
+java.version=1.8.0_152
+java.vendor=Oracle Corporation
+BootLoader constants: OS=win32, ARCH=x86, WS=win32, NL=de_CH
+Framework arguments:  -eclipse.keyring @user.home/Application Data/XMind/secure_storage C:\_Data\OwnCloud\Projekte\JCA_IOT\Dokumente\Konzept.xmind
+Command-line arguments:  -os win32 -ws win32 -arch x86 -data ./workspace -eclipse.keyring @user.home/Application Data/XMind/secure_storage C:\_Data\OwnCloud\Projekte\JCA_IOT\Dokumente\Konzept.xmind
+
+!ENTRY org.xmind.cathy 1 0 2020-06-11 23:08:45.523
+!MESSAGE Skip unrecognized command line argument: '-eclipse.keyring'
+
+!ENTRY org.xmind.cathy 1 0 2020-06-11 23:08:45.526
+!MESSAGE Skip unrecognized command line argument: '@user.home/Application Data/XMind/secure_storage'
+
+!ENTRY org.xmind.cathy 1 0 2020-06-11 23:08:47.011
+!MESSAGE Path queued to be opened: C:\_Data\OwnCloud\Projekte\JCA_IOT\Dokumente\Konzept.xmind
+
+!ENTRY org.xmind.cathy 1 0 2020-06-11 23:08:48.614
+!MESSAGE Ready to open files: [C:\_Data\OwnCloud\Projekte\JCA_IOT\Dokumente\Konzept.xmind]
+
+!ENTRY org.xmind.core.command 1 0 2020-06-11 23:08:48.629
+!MESSAGE Malformed URI: C:\_Data\OwnCloud\Projekte\JCA_IOT\Dokumente\Konzept.xmind
+
+!ENTRY org.eclipse.ui 2 2 2020-06-11 23:09:40.648
+!MESSAGE Invalid preference category path: org.eclipse.ui.preferencePages.Workbench (bundle: org.eclipse.ui.net, page: org.eclipse.ui.net.NetPreferences)
+
+!ENTRY org.xmind.ui.mindmap 4 4 2020-06-11 23:15:35.057
+!MESSAGE [save] start...[save] add state...[save] clean...[save] doSave start...[save] doSaveWorkbookToTempStorage start...[save] doSaveWorkbookToTempStorage over...[save] doSaveWorkbookToURIFromSource start...[save] new file...[save] serialize start...[save] new FileOutputStream...[save] setOutputStream...[save] serialize success...[save] doSaveWorkbookToURIFromSource over...[save] doSave over...[save] success...over...
+
+!ENTRY org.xmind.ui.mindmap 4 4 2020-06-12 00:13:40.847
+!MESSAGE [save] start...[save] add state...[save] clean...[save] doSave start...[save] doSaveWorkbookToTempStorage start...[save] doSaveWorkbookToTempStorage over...[save] doSaveWorkbookToURIFromSource start...[save] new file...[save] serialize start...[save] new FileOutputStream...[save] setOutputStream...[save] serialize success...[save] doSaveWorkbookToURIFromSource over...[save] doSave over...[save] success...over...

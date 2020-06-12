@@ -1,2 +1,5 @@
 Theme_Apply=ASK_USER
+autoBackupEnable=false
+dndConfirm.ExternalFile=CREATE_HYPERLINK
 eclipse.preferences.version=1
+org.xmind.ui.mindmap.author.name=joche
