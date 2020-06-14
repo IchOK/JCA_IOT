@@ -24,44 +24,9 @@
 #include "JCA_IOT_ELEMENT_Root.hpp"
 
 #include "JCA_IOT_MESH_define.h"
-#include "JCA_IOT_MESH.h"
+#include "JCA_IOT_MESH_types.h"
 
 namespace JCA{ namespace IOT{ namespace MESH{
-  enum clientState{
-    init,
-    requesting,
-    online
-  };
-  typedef struct serverState {
-    uint32_t id;
-    uint32_t wd;
-  }serverState;
-  typedef struct serverPublish {
-    uint32_t timestamp;
-    bool logging;
-    bool archvi;
-    bool alarming;
-  }serverPublish;
-  typedef struct archivData {
-    uint32_t timestamp;
-    uint32_t elementIndex;
-    uint32_t datapointIndex;
-    uint16_t dataType;
-    uint16_t type;
-    int32_t  valueInt;
-    float    valueFloat;
-    bool     valueBool;
-  }archivData;
-  typedef struct alarm {
-    uint32_t timestamp;
-    uint16_t prio;
-    String   text;
-  }alarm;
-  typedef struct error{
-    uint16_t type;
-    JsonObject data;
-  }
-  
   class cClient{
     public:
       /***************************************
@@ -74,7 +39,7 @@ namespace JCA{ namespace IOT{ namespace MESH{
       }
     
       /***************************************
-       * Methode: update(JsonObject Data)
+       * Methode: update(Elements, &MeshOut, DiffMillis, Timestamp))
        * Info:  Funktion durchsucht die Elemente nach
        *        Client-Nachrichten und handelt die
        *        Server-Listen.
@@ -85,18 +50,22 @@ namespace JCA{ namespace IOT{ namespace MESH{
        *            Puffer für ausgehende Mesh-Telegramme
        *        DiffMillis [uint32_t]
        *            Vergangene Zeit seit letztem Aufruf
+       *        Timestamp [uint32_t]
+       *            Aktueller Zeitstempel
        ***************************************/
-      void update(std::vector<ELEMENT::cRoot*> Elements, JsonObject &MeshOut, uint32_t DiffMillis){
+      void update(std::vector<ELEMENT::cRoot*> Elements, JsonObject &MeshOut, uint32_t DiffMillis, uint32_t Timestamp){
         // TODO
         // Elemente durchsuchen
         //    Archiv-Liste durchsuchen
         //    Alarm-Liste durchsuchen
+        //    Nachrichten in MeshOut eintragen
         // Server-Watchdogs hochzählen
         //    Server status updaten / entfernen
+        //    -> sendSrvRequest
       }
       
       /***************************************
-       * Methode: sendSrvRequest(JsonObject Data)
+       * Methode: recvSrvPublish(JsonObject Data)
        * Info:  Funktion zum empfangen und verarbeiten eines
        *        Server-Publish telegramm.
        *        Status Updaten
@@ -171,6 +140,18 @@ namespace JCA{ namespace IOT{ namespace MESH{
       }
       
       /***************************************
+       * Methode: recvAlarmAck(std::vector<ELEMENT::cRoot*> Elements, JsonObject Data)
+       * Info:  Funktion zum empfangen und verarbeiten einer
+       *        Alarm-Quittierung
+       *        Alarm.State auf Ack/Idle setzen
+       ***************************************/
+      void recvAlarmAck(std::vector<ELEMENT::cRoot*> Elements, JsonObject Data){
+        // TODO
+        // Alarm Quittierung empfangen
+        // Element[elementIdx].Alarm[alarmIdx].State schreiben
+      }
+      
+      /***************************************
        * Methode: sendArchivData(JsonObject MeshOut, archivData Data)
        * Info:  Funktion zur Erstellung eines Archiv Telegramms
        *        Fügt dem MeshOut-Buffer eine Archiv-Nachricht für
@@ -192,18 +173,8 @@ namespace JCA{ namespace IOT{ namespace MESH{
           Msg["time"] = Data.timestamp;
           Msg["element"] = Data.elementIndex;
           Msg["data"] = Data.datapointIndex;
-          Msg["dataType"] = Data.dataType;
-          switch(Data.dataType){
-            case JCA_IOT_ELEMENT_DATA_BOOL:
-              Msg["value"] = Data.valueBool;
-              break;
-            case JCA_IOT_ELEMENT_DATA_INT:
-              Msg["value"] = Data.valueInt;
-              break;
-            case JCA_IOT_ELEMENT_DATA_FLOAT:
-              Msg["value"] = Data.valueFloat;
-              break;
-          }
+          Msg["value"] = Data.value;
+          Msg["type"] = Data.typeMask;
         }
       }
       
@@ -227,8 +198,10 @@ namespace JCA{ namespace IOT{ namespace MESH{
           Msg = Server.createNestedObject();
           Msg["msgId"] = JCA_IOT_MESH_SRV_ALARM;
           Msg["time"] = Data.timestamp;
-          Msg["prio"] = Data.prio;
           Msg["text"] = Data.text;
+          Msg["prio"] = Data.prio;
+          Msg["eIdx"] = Data.elementIndex;
+          Msg["aIdx"] = Data.alarmIndex;
         }
       }
       
