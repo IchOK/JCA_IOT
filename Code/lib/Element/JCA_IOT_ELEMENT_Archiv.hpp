@@ -84,7 +84,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
             Trigger = JCA_IOT_ELEMENT_TRIGGER_INIT;
             Timestamp = InTimestamp;
             break;
-          case JCA_IOT_ELEMENT_QC_GOOD;
+          case JCA_IOT_ELEMENT_QC_GOOD:
             Value = InValue;
             Timestamp = InTimestamp;
             break;

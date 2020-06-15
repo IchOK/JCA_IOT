@@ -25,6 +25,7 @@
 #include "JCA_IOT_ELEMENT_Input.hpp"
 #include "JCA_IOT_ELEMENT_Data.hpp"
 #include "JCA_IOT_ELEMENT_Archiv.hpp"
+#include "JCA_IOT_ELEMENT_Alarm.hpp"
 
 //Include extrenal
 #include <vector>
@@ -213,20 +214,20 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
          }
       }
       
-      float setArchiv(const unsigned char Index, float Value, uint32_t Timestamp){
-         Archiv[Index].setValue(Value, Timestamp, false);
+      void setArchiv(const unsigned char Index, float Value, uint32_t Timestamp){
+         Archiv[Index]->setValue(Value, Timestamp, false);
       }
       
-      float pushArchiv(const unsigned char Index, float Value, uint32_t Timestamp){
-         Archiv[Index].setValue(Value, Timestamp, true);
+      void pushArchiv(const unsigned char Index, float Value, uint32_t Timestamp){
+         Archiv[Index]->setValue(Value, Timestamp, true);
       }
       
-      float setAlarm(const unsigned char Index, bool Value, uint32_t Timestamp){
-         Alarm[Index].setAlarm(Value, Timestamp);
+      void setAlarm(const unsigned char Index, bool Value, uint32_t Timestamp){
+         Alarm[Index]->setAlarm(Value, Timestamp);
       }
       
-      float ackAlarm(const unsigned char State){
-         Alarm[Index].ackAlarm(State);
+      void ackAlarm(const unsigned char Index, const unsigned char State){
+         Alarm[Index]->ackAlarm(State);
       }
       
       void config(JsonObject& JsonObj){
@@ -287,7 +288,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
             //check JsonObject for needed Keys
             if (ConfigArchiv.containsKey("name")){
               bool OnChange = false;
-              bool OnCylce = false;
+              bool OnCycle = false;
               uint32_t Time = 0;
               float Hyst = 0.0;
               float Value = 0.0;
@@ -296,15 +297,15 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
               for (int i = 0; i < Archiv.size(); i++){
                 if (strcmp(Archiv[i]->Name, ConfigName) == 0){
                   if (ConfigArchiv.containsKey("onChange") && ConfigArchiv.containsKey("hyst")){
-                    OnChange = ConfigArchiv["onChange"].as<bool>;
-                    Hyst = ConfigArchiv["hyst"].as<float>;
+                    OnChange = ConfigArchiv["onChange"].as<bool>();
+                    Hyst = ConfigArchiv["hyst"].as<float>();
                   }
                   if (ConfigArchiv.containsKey("onCycle") && ConfigArchiv.containsKey("time")){
-                    OnCycle = ConfigArchiv["onCycle"].as<bool>;
-                    Time = ConfigArchiv["time"].as<uint32_t>;
+                    OnCycle = ConfigArchiv["onCycle"].as<bool>();
+                    Time = ConfigArchiv["time"].as<uint32_t>();
                   }
                   if (ConfigArchiv.containsKey("value")){
-                    Value = ConfigArchiv["value"].as<float>;
+                    Value = ConfigArchiv["value"].as<float>();
                   }
                   Archiv[i]->config(OnChange, OnCycle, Hyst, Time, Value);
                   break;
@@ -327,9 +328,9 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
                   if (ConfigAlarm.containsKey("text") && ConfigAlarm.containsKey("prio")){
                     unsigned char State = 0;
                     if (ConfigAlarm.containsKey("state")){
-                      State = ConfigAlarm["state"].as<unsigned char>;
+                      State = ConfigAlarm["state"].as<unsigned char>();
                     }
-                    Alarm[i]->config(ConfigAlarm["state"].as<char*>, ConfigAlarm["state"].as<unsigned char>, State);
+                    Alarm[i]->config(ConfigAlarm["state"].as<char*>(), ConfigAlarm["state"].as<unsigned char>(), State);
                     break;
                   }
                 }

@@ -91,7 +91,6 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
                 Counter = 0;
             }
             break;
-          }
         }
       }
       
@@ -115,17 +114,17 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
 
       void ackAlarm(unsigned char InState) {
         if (InState == State) {
-          switch{State) {
-            case JCA_IOT_ELEMENT_ALARM_STATE_COMES
+          switch(State) {
+            case JCA_IOT_ELEMENT_ALARM_STATE_COME:
               State = JCA_IOT_ELEMENT_ALARM_STATE_COMESEND;
               break;
-            case JCA_IOT_ELEMENT_ALARM_STATE_COMESEND
+            case JCA_IOT_ELEMENT_ALARM_STATE_COMESEND:
               State = JCA_IOT_ELEMENT_ALARM_STATE_COMEACK;
               break;
-            case JCA_IOT_ELEMENT_ALARM_STATE_GONE
+            case JCA_IOT_ELEMENT_ALARM_STATE_GONE:
               State = JCA_IOT_ELEMENT_ALARM_STATE_GONESEND;
               break;
-            case JCA_IOT_ELEMENT_ALARM_STATE_GONESEND
+            case JCA_IOT_ELEMENT_ALARM_STATE_GONESEND:
               State = JCA_IOT_ELEMENT_ALARM_STATE_IDLE;
               break;
           }

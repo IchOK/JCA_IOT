@@ -67,18 +67,20 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
       #if DEBUGLEVEL >= 2
          Serial.println(F("START - createDO()"));
       #endif
-      if (JConf.containsKey("name") && JConf.containsKey("pin")){
-         char InName[JCA_IOT_ELEMENT_NAME_LEN];
-         unsigned char InPin;
-         
-         InPin = JConf["pin"].as<unsigned char>();
-         strcpy(InName, JConf["name"].as<char*>());
-          
-         #if DEBUGLEVEL >= 2
-            Serial.printf("  Name:%s - Pin:%i\r\n", InName, InPin);
-         #endif
-         InElements.push_back(new cDO(InName, InPin));
-         InElements.back()->config(JConf);
+      if (JConf.containsKey("name") && JConf.containsKey("config")){
+        if (JConf["config"].containsKey("pin")){
+           char InName[JCA_IOT_ELEMENT_NAME_LEN];
+           unsigned char InPin;
+           
+           InPin = JConf["config"]["pin"].as<unsigned char>();
+           strncpy(InName, JConf["name"].as<char*>(), JCA_IOT_ELEMENT_NAME_LEN);
+            
+           #if DEBUGLEVEL >= 2
+              Serial.printf("  Name:%s - Pin:%i\r\n", InName, InPin);
+           #endif
+           InElements.push_back(new cDO(InName, InPin));
+           InElements.back()->config(JConf);
+        }
       }
       #if DEBUGLEVEL >= 2
          Serial.println(F("DONE - createDI()"));

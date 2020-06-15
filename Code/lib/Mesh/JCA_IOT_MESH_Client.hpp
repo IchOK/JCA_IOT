@@ -152,6 +152,30 @@ namespace JCA{ namespace IOT{ namespace MESH{
       }
       
       /***************************************
+       * Methode: sendError(JsonObject MeshOut, error Data)
+       * Info:  Funktion zur Erstellung eines Archiv Telegramms
+       *        Fügt dem MeshOut-Buffer eine Archiv-Nachricht für
+       *        jeden Server hinzu.
+       ***************************************/
+      void sendError(JsonObject &MeshOut, error Data){
+        JsonArray Server;
+        JsonObject Msg;
+        // Alle erfallsten Server durchlaufen
+        for (int srv = 0; srv < LogServers.size(); srv++){
+          // Falls noch kein Eintrag für die NodeId existiert, diese erstellen
+          if (MeshOut->containsKey(LogServers[srv]->id)){
+            Server = MeshOut[LogServers[srv]->id];
+          }else{
+            Server = MeshOut->createNestedArray(LogServers[srv]->id);
+          }
+          Msg = Server.createNestedObject();
+          Msg["msgId"] = JCA_IOT_MESH_SRV_FAILLOG;
+          Msg["type"] = Data.type;
+          Msg["data"] = Data.data;
+        }
+      }
+
+      /***************************************
        * Methode: sendArchivData(JsonObject MeshOut, archivData Data)
        * Info:  Funktion zur Erstellung eines Archiv Telegramms
        *        Fügt dem MeshOut-Buffer eine Archiv-Nachricht für
@@ -205,30 +229,6 @@ namespace JCA{ namespace IOT{ namespace MESH{
         }
       }
       
-      /***************************************
-       * Methode: sendError(JsonObject MeshOut, error Data)
-       * Info:  Funktion zur Erstellung eines Archiv Telegramms
-       *        Fügt dem MeshOut-Buffer eine Archiv-Nachricht für
-       *        jeden Server hinzu.
-       ***************************************/
-      void sendError(JsonObject &MeshOut, error Data){
-        JsonArray Server;
-        JsonObject Msg;
-        // Alle erfallsten Server durchlaufen
-        for (int srv = 0; srv < LogServers.size(); srv++){
-          // Falls noch kein Eintrag für die NodeId existiert, diese erstellen
-          if (MeshOut->containsKey(LogServers[srv]->id)){
-            Server = MeshOut[LogServers[srv]->id];
-          }else{
-            Server = MeshOut->createNestedArray(LogServers[srv]->id);
-          }
-          Msg = Server.createNestedObject();
-          Msg["msgId"] = JCA_IOT_MESH_SRV_FAILLOG;
-          Msg["type"] = Data.type;
-          Msg["data"] = Data.data;
-        }
-      }
-
     private:
       clientState State;
       std::vector<serverState> LogServers;

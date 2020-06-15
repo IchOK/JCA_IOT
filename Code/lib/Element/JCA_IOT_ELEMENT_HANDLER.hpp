@@ -131,6 +131,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
        *        InConfigFile [char*] Name/Pfad der Konfigurations-Datei
        ***************************************/
       bool config(char* InConfigFile){
+        
         #if DEBUGLEVEL >= 2
           Serial.println(F("START - cHandler.config()"));
         #endif
@@ -186,6 +187,8 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
           #endif
           return false;
         }
+        // Konfig JSON-Dokument in JsonOject konvertiert.
+        JsonObject JConfig = JDoc.as<JsonObject>();
         //-------------------------------------------------------------------------------------------------------------
         
         //-------------------------------------------------------------------------------------------------------------
