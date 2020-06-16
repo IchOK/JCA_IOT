@@ -56,10 +56,8 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
        *          CreateElement Liste eingetragen werden.
        ***************************************/
       std::vector<ELEMENT::cRoot*> Elements;
-      String ErrorText;
-      String ConfigFileName;
-      StaticJsonDocument<JCA_IOT_ELEMENT_HANDLER_JSON_DOCSIZE> JDoc;
       unsigned char QC;
+      String ErrorText;
       
       /***************************************
        * Methode: cHandler()
@@ -130,66 +128,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
        * Parameter:
        *        InConfigFile [char*] Name/Pfad der Konfigurations-Datei
        ***************************************/
-      bool config(char* InConfigFile){
-        
-        #if DEBUGLEVEL >= 2
-          Serial.println(F("START - cHandler.config()"));
-        #endif
-        ConfigFileName = InConfigFile;
-        //-------------------------------------------------------------------------------------------------------------
-        // INIT
-        // Initialisierung des Filesystems
-        if (!SPIFFS.begin()) {
-          // .. Bei Fehler wird der Quality-Code angepasst und 
-          QC = JCA_IOT_ELEMENT_QC_CONFCREAT;
-          // .. der Fehlertext geschrieben.
-          ErrorText = F("Failed to config file");
-          #if DEBUGLEVEL >= 1
-            Serial.println(ErrorText);
-          #endif
-          return false;
-        }
-        // Öffnen der Konfigurations-Datei
-        File ConfigFile = SPIFFS.open(ConfigFileName, "r");
-        if(!ConfigFile){
-          // .. Bei Fehler wird der Quality-Code angepasst und 
-          QC = JCA_IOT_ELEMENT_QC_CONFCREAT;
-          // .. der Fehlertext geschrieben.
-          ErrorText = F("Failed to config file");
-          #if DEBUGLEVEL >= 1
-            Serial.println(ErrorText);
-          #endif
-          return false;
-        }
-        // Die Datei-Länge wird geprüft, um sicher zu stellen 
-        //  dass der JSON-Speicherbereich ausreicht.
-        size_t Size = ConfigFile.size();
-        if(Size > JCA_IOT_ELEMENT_HANDLER_FILE_MAXSIZE){
-          // .. Ist die Datei zu gross wird der Quality-Code angepasst und 
-          QC = JCA_IOT_ELEMENT_QC_CONFCREAT;
-          // .. der Fehlertext geschrieben.
-          ErrorText = F("Config file size is too large");
-          #if DEBUGLEVEL >= 1
-            Serial.println(ErrorText);
-          #endif
-          return false;
-        }
-        // Die Konfigurations-Datei wird in ein JSON-Dokument konvertiert.
-        DeserializationError JError = deserializeJson(JDoc, ConfigFile);
-        if(JError){
-          // .. Bei Fehler wird der Quality-Code angepasst und 
-          QC = JCA_IOT_ELEMENT_QC_CONFCREAT;
-          // .. der Fehlertext geschrieben.
-          ErrorText = F("deserialize FAILD: ");
-          ErrorText += JError.c_str();
-          #if DEBUGLEVEL >= 1
-            Serial.println(ErrorText);
-          #endif
-          return false;
-        }
-        // Konfig JSON-Dokument in JsonOject konvertiert.
-        JsonObject JConfig = JDoc.as<JsonObject>();
-        //-------------------------------------------------------------------------------------------------------------
+      bool config(JsonObject& JConfig){
         
         //-------------------------------------------------------------------------------------------------------------
         // CONFIG - Netzwerk Einstellungen
@@ -263,6 +202,10 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
           }
         }
         //-------------------------------------------------------------------------------------------------------------
+        
+        if (QC != JCA_IOT_ELEMENT_QC_CONFCREAT) {
+           QC = JCA_IOT_ELEMENT_QC_GOOD;
+        }
         #if DEBUGLEVEL >= 2
           Serial.println(F("DONE - cHandler.config()"));
         #endif

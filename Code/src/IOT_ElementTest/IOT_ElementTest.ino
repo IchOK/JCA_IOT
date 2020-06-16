@@ -1,16 +1,19 @@
 #define DEBUGLEVEL 2
 
-#include "FS.h"
+//#include <FS.h>
+#include <painlessMesh.h>
+#include <ArduinoJson.h>
 
 #include "JCA_IOT_ELEMENT.h"
+#include "JCA_IOT_MESH.h"
 
 using namespace JCA::IOT;
 using namespace JCA::IOT::ELEMENT;
 uint32_t StoreMillis;
 //std::vector<cRoot*> Elements;
 
-//Json-Dummy String
-//StaticJsonDocument<1024> JDoc;
+//JsonObject as Pointer
+JsonObject JConfig;
 
 cHandler IotHandler;
 void setup() {
@@ -24,7 +27,7 @@ void setup() {
   beginDO(IotHandler);
   
   //Konfig Handler
-  RetIO = IotHandler.config("/config.json");
+  RetIO = IotHandler.config(JConfig);
 
   StoreMillis = millis();
 }

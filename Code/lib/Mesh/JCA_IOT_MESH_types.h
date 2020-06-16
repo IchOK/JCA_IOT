@@ -8,7 +8,7 @@
 #ifndef _JCA_IOT_MESH_TYPES_H
 #define _JCA_IOT_MESH_TYPES_H
 
-#include JCA_IOT_ELEMENT_define.h
+#include "JCA_IOT_ELEMENT_define.h"
 
 namespace JCA{ namespace IOT{ namespace MESH{
   
@@ -16,9 +16,9 @@ namespace JCA{ namespace IOT{ namespace MESH{
    * Client
    ***************************************/
   enum clientState{
-    init,
-    requesting,
-    online
+    cltInit,
+    cltRequesting,
+    cltOnline
   };
   typedef struct serverState {
     uint32_t id;
@@ -54,13 +54,13 @@ namespace JCA{ namespace IOT{ namespace MESH{
    * Config
    ***************************************/
   enum configState{
-    init,
-    ready,
-    getReply,
-    getActiv,
-    getTimeout,
-    setActiv,
-    setTimeout
+    confInit,
+    confReady,
+    confGetReply,
+    confGetActiv,
+    confGetTimeout,
+    confSetActiv,
+    confSetTimeout
   };
 
   /***************************************
@@ -127,5 +127,6 @@ namespace JCA{ namespace IOT{ namespace MESH{
     float         valueFloat;
     unsigned char qc;
   }iPublish;
+
 }}}
 #endif
