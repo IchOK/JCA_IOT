@@ -1,11 +1,8 @@
 #define DEBUGLEVEL 2
 
-//#include <FS.h>
-#include <painlessMesh.h>
 #include <ArduinoJson.h>
 
 #include "JCA_IOT_ELEMENT.h"
-#include "JCA_IOT_MESH.h"
 
 using namespace JCA::IOT;
 using namespace JCA::IOT::ELEMENT;

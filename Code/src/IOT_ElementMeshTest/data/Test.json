@@ -1,0 +1,41 @@
+{
+  "name":"TestNode",
+  "role":"FirmewareTest",
+  "konfig":{
+    "i2c":true,
+    "i2c_konfig":{"sda":4, "scl":5},
+    "spi":false,
+    "onewire":true,
+    "onewire_konfig":{"pin":15}
+  },
+  "elements":[
+    {
+      "name":"TestElementDI",
+      "type":"DI",
+      "config":{
+        "pin":14,
+        "pullup":true
+      },
+      "input":[],
+      "data":[],
+      "archiv":[],
+      "alarm":[]
+    },{
+      "name":"TestElementDO",
+      "type":"DO",
+      "config":{
+        "pin":16
+      },
+      "input":[
+        {
+          "name":"Input",
+          "element":0,
+          "data":0
+        }
+      ],
+      "data":[],
+      "archiv":[],
+      "alarm":[]
+    }
+  ]
+}

@@ -23,6 +23,7 @@
 //Elemente einbinden für Update
 #include "JCA_IOT_ELEMENT_Root.hpp"
 
+#include "JCA_IOT_ELEMENT_define.h"
 #include "JCA_IOT_MESH_define.h"
 #include "JCA_IOT_MESH_types.h"
 
@@ -35,7 +36,8 @@ namespace JCA{ namespace IOT{ namespace MESH{
        *        und Status
        ***************************************/
       cClient(){
-        State = init;
+        State = cltInit;
+        reqTimer = random(JCA_IOT_MESH_SRV_TIMEREQ, JCA_IOT_MESH_SRV_TIMEREQ + JCA_IOT_MESH_SRV_TIMERANGE);
       }
     
       /***************************************
@@ -53,15 +55,148 @@ namespace JCA{ namespace IOT{ namespace MESH{
        *        Timestamp [uint32_t]
        *            Aktueller Zeitstempel
        ***************************************/
-      void update(std::vector<ELEMENT::cRoot*> Elements, JsonObject &MeshOut, uint32_t DiffMillis, uint32_t Timestamp){
-        // TODO
-        // Elemente durchsuchen
-        //    Archiv-Liste durchsuchen
-        //    Alarm-Liste durchsuchen
-        //    Nachrichten in MeshOut eintragen
-        // Server-Watchdogs hochzählen
-        //    Server status updaten / entfernen
-        //    -> sendSrvRequest
+      uint32_t update(std::vector<ELEMENT::cRoot*> *Elements, JsonObject &MeshOut, uint32_t DiffMillis, uint32_t Timestamp){
+        int i;
+        std::vector<serverState>::iterator srv;
+        iArchivData archData;
+        iAlarm almData;
+        #if DEBUGLEVEL >= 9
+          Serial.println(F("CLIENT update"));
+        #endif
+        
+        // Uhrzeit
+        TimeMillis += DiffMillis;
+        if (TimeMillis > 1000) {
+          Timestamp += 1;
+          TimeMillis -= 1000;
+        }
+        
+        // Elemente durchlaufen
+        for (int e = 0; e < Elements->size(); e++){
+          //-----------------------------------------------------------------------------------------------------------
+          // CHECK ARCHIVS
+          for (i = 0; i < (*Elements)[e]->Archiv.size(); i++){
+            // Wenn der Archiv-Trigger gesetzt wurde ...
+            if ((*Elements)[e]->Archiv[i]->Trigger != 0) {
+              // ... wird das Telegram versendet und der Trigger gelöscht
+              #if DEBUGLEVEL >= 2
+                Serial.print(F("SEND ARCHIV - "));
+                Serial.println((*Elements)[e]->Archiv[i]->Name);
+              #endif
+              archData.timestamp = (*Elements)[e]->Archiv[i]->Timestamp;
+              archData.elementIndex = e;
+              archData.archivIndex = i;
+              archData.trigger = (*Elements)[e]->Archiv[i]->Trigger;
+              archData.value = (*Elements)[e]->Archiv[i]->Value;
+              if (sendArchivData(MeshOut, archData)){
+                (*Elements)[e]->Archiv[i]->Trigger = 0;
+              }
+            }
+          }
+          //-----------------------------------------------------------------------------------------------------------
+          // CHECK ALARMS
+          for (i = 0; i < (*Elements)[e]->Alarm.size(); i++){
+            // Alarm-Status prüfen ...
+            switch ((*Elements)[e]->Alarm[i]->State) {
+              case JCA_IOT_ELEMENT_ALARM_STATE_COME:
+                // ... ist der Alarm gekommen wird, versenden und Status setzen
+                #if DEBUGLEVEL >= 2
+                  Serial.print(F("SEND ALARM-COME - "));
+                  Serial.println((*Elements)[e]->Alarm[i]->Name);
+                #endif
+                almData.timestamp = (*Elements)[e]->Alarm[i]->TimestampCome;
+                almData.text = (*Elements)[e]->Alarm[i]->Text;
+                almData.prio = (*Elements)[e]->Alarm[i]->Prio;
+                almData.elementIndex = e;
+                almData.alarmIndex = i;
+                almData.state = JCA_IOT_ELEMENT_ALARM_STATE_COME;
+                if (sendAlarm(MeshOut, almData)){
+                  (*Elements)[e]->Alarm[i]->State = JCA_IOT_ELEMENT_ALARM_STATE_COMESEND;
+                }
+                break;
+                
+              case JCA_IOT_ELEMENT_ALARM_STATE_GONE:
+                // ... ist der Alarm gekommen wird, versenden und Status setzen
+                #if DEBUGLEVEL >= 2
+                  Serial.print(F("SEND ALARM-GONE - "));
+                  Serial.println((*Elements)[e]->Alarm[i]->Name);
+                #endif
+                almData.timestamp = (*Elements)[e]->Alarm[i]->TimestampGone;
+                almData.text = (*Elements)[e]->Alarm[i]->Text;
+                almData.prio = (*Elements)[e]->Alarm[i]->Prio;
+                almData.elementIndex = e;
+                almData.alarmIndex = i;
+                almData.state = JCA_IOT_ELEMENT_ALARM_STATE_GONE;
+                if (sendAlarm(MeshOut, almData)){
+                  (*Elements)[e]->Alarm[i]->State = JCA_IOT_ELEMENT_ALARM_STATE_GONESEND;
+                }
+                break;
+            }
+          }
+        }
+        //-----------------------------------------------------------------------------------------------------------
+        // SERVER WATCHDOGS
+        
+        // Logging-Server
+        for(srv = LogServers.begin(); srv != LogServers.end(); /*++srv*/) {
+          srv->wd -= DiffMillis;
+          // Wenn der Timeout überschritten ist wird der Server aus der Liste entfernt
+          if (srv->wd <= 0){
+            #if DEBUGLEVEL >= 2
+              Serial.print(F("REMOVE LOGSRV - "));
+              Serial.println(srv->id);
+            #endif
+            srv = LogServers.erase(srv);
+          }else{
+            ++srv;
+          }
+        }
+        // Server-Request versenden , falls kein Logging-Server verfürbar ist
+        if (LogServers.size() == 0){
+          reqTimer -= DiffMillis;
+          #if DEBUGLEVEL >= 9
+            Serial.print(F("  LOGSRV REQTIMER - "));
+            Serial.println(reqTimer);
+          #endif
+          if (reqTimer <= 0){
+            sendSrvRequest(MeshOut);
+            reqTimer = random(JCA_IOT_MESH_SRV_TIMEREQ, JCA_IOT_MESH_SRV_TIMEREQ + JCA_IOT_MESH_SRV_TIMERANGE);
+            #if DEBUGLEVEL >= 2
+              Serial.print(F("  Next "));
+              Serial.print(reqTimer);
+              serializeJsonPretty(MeshOut, Serial);
+            #endif
+          }
+        }
+        State = cltOnline;
+        // Alarming-Server
+        for(srv = AlarmServers.begin(); srv != AlarmServers.end(); /*++srv*/) {
+          srv->wd -= DiffMillis;
+          // Wenn der Timeout überschritten ist wird der Server aus der Liste entfernt
+          if (srv->wd <= 0){
+            #if DEBUGLEVEL >= 2
+              Serial.print(F("REMOVE ALMSRV - "));
+              Serial.println(srv->id);
+            #endif
+            srv = AlarmServers.erase(srv);
+          }else{
+            ++srv;
+          }
+        }
+        // Archiv-Server
+        for(srv = ArchivServers.begin(); srv != ArchivServers.end(); /*++srv*/) {
+          srv->wd -= DiffMillis;
+          // Wenn der Timeout überschritten ist wird der Server aus der Liste entfernt
+          if (srv->wd <= 0){
+            #if DEBUGLEVEL >= 2
+              Serial.print(F("REMOVE ARCSRV - "));
+              Serial.println(srv->id);
+            #endif
+            srv = ArchivServers.erase(srv);
+          }else{
+            ++srv;
+          }
+        }
       }
       
       /***************************************
@@ -74,69 +209,87 @@ namespace JCA{ namespace IOT{ namespace MESH{
       void recvSrvPublish(JsonObject Data){
         bool notFound;
         uint32_t id;
-        
+        std::vector<serverState>::iterator srv;
+        id = Data["from"];
+        #if DEBUGLEVEL >= 2
+          Serial.print(F("RECV SRVPUBLISH - "));
+          Serial.print(id);
+        #endif
         // Uhrzeit stellen
+        if (Data["msg"].containsKey("time")){
+          Timestamp = Data["msg"]["time"];
+          TimeMillis = 0;
+        }
         
         // Zu Logging-Server-Liste hinzufügen oder watchdog zurück setzen
-        if (Data.msg["logging"]){
+        if (Data["msg"]["logging"]){
+          #if DEBUGLEVEL >= 2
+            Serial.print(F(" -logging"));
+          #endif
           // Client-Status aktuallisieren
-          State = online;
+          State = cltOnline;
           
           // Server-Liste durchsuchen
           notFound = true;
-          id = Data.from;
-          for (int srv = 0; srv < LogServers.size(); srv++){
-            if (LogServers[srv]->id == id){
+          for(srv = LogServers.begin(); srv != LogServers.end(); ++srv) {
+            if (srv->id == id){
               // Watchdog zurücksetzen
-              LogServers[srv]->wd = 0;
+              srv->wd = random(JCA_IOT_MESH_SRV_TIMEWD, JCA_IOT_MESH_SRV_TIMEWD + JCA_IOT_MESH_SRV_TIMERANGE);
               notFound = false;
               break;
             }
           }
           if (notFound){
             LogServers.push_back(serverState());
-            LogServers.back()->id = id;
-            LogServers.back()->wd = 0;
+            LogServers.back().id = id;
+            LogServers.back().wd = random(JCA_IOT_MESH_SRV_TIMEWD, JCA_IOT_MESH_SRV_TIMEWD + JCA_IOT_MESH_SRV_TIMERANGE);
           }
         }
         
         // Zu Alarming-Server-Liste hinzufügen oder watchdog zurück setzen
-        if (Data.msg["alarming"]){
+        if (Data["msg"]["alarming"]){
+          #if DEBUGLEVEL >= 2
+            Serial.print(F(" -alarming"));
+          #endif
           notFound = true;
-          id = Data.from;
-          for (int srv = 0; srv < AlarmServers.size(); srv++){
-            if (AlarmServers[srv]->id == id){
+          for(srv = AlarmServers.begin(); srv != AlarmServers.end(); ++srv) {
+            if (srv->id == id){
               // Watchdog zurücksetzen
-              AlarmServers[srv]->wd = 0;
+              srv->wd = random(JCA_IOT_MESH_SRV_TIMEWD, JCA_IOT_MESH_SRV_TIMEWD + JCA_IOT_MESH_SRV_TIMERANGE);
               notFound = false;
               break;
             }
           }
           if (notFound){
             AlarmServers.push_back(serverState());
-            AlarmServers.back()->id = id;
-            AlarmServers.back()->wd = 0;
+            AlarmServers.back().id = id;
+            AlarmServers.back().wd = random(JCA_IOT_MESH_SRV_TIMEWD, JCA_IOT_MESH_SRV_TIMEWD + JCA_IOT_MESH_SRV_TIMERANGE);
           }
         }
         
         // Zu Archiv-Server-Liste hinzufügen oder watchdog zurück setzen
-        if (Data.msg["archiv"]){
+        if (Data["msg"]["archiv"]){
+          #if DEBUGLEVEL >= 2
+            Serial.print(F(" -archiv"));
+          #endif
           notFound = true;
-          id = Data.from;
-          for (int srv = 0; srv < ArchivServers.size(); srv++){
-            if (ArchivServers[srv]->id == id){
+          for(srv = ArchivServers.begin(); srv != ArchivServers.end(); ++srv) {
+            if (srv->id == id){
               // Watchdog zurücksetzen
-              ArchivServers[srv]->wd = 0;
+              srv->wd = random(JCA_IOT_MESH_SRV_TIMEWD, JCA_IOT_MESH_SRV_TIMEWD + JCA_IOT_MESH_SRV_TIMERANGE);
               notFound = false;
               break;
             }
           }
           if (notFound){
             ArchivServers.push_back(serverState());
-            ArchivServers.back()->id = id;
-            ArchivServers.back()->wd = 0;
+            ArchivServers.back().id = id;
+            ArchivServers.back().wd = random(JCA_IOT_MESH_SRV_TIMEWD, JCA_IOT_MESH_SRV_TIMEWD + JCA_IOT_MESH_SRV_TIMERANGE);
           }
         }
+        #if DEBUGLEVEL >= 2
+          Serial.println("");
+        #endif
       }
       
       /***************************************
@@ -145,10 +298,24 @@ namespace JCA{ namespace IOT{ namespace MESH{
        *        Alarm-Quittierung
        *        Alarm.State auf Ack/Idle setzen
        ***************************************/
-      void recvAlarmAck(std::vector<ELEMENT::cRoot*> Elements, JsonObject Data){
-        // TODO
-        // Alarm Quittierung empfangen
-        // Element[elementIdx].Alarm[alarmIdx].State schreiben
+      void recvAlarmAck(std::vector<ELEMENT::cRoot*> *Elements, JsonObject Data){
+        unsigned char e = Data["msg"]["eIdx"].as<unsigned char>();
+        unsigned char i = Data["msg"]["aIdx"].as<unsigned char>();
+        // Alarm-Status prüfen ...
+        switch ((*Elements)[e]->Alarm[i]->State) {
+          case JCA_IOT_ELEMENT_ALARM_STATE_COMESEND:
+            // ... der Status ist gekommen und wurde bestätigt
+            if (Data["msg"]["state"] == JCA_IOT_ELEMENT_ALARM_STATE_COME) {
+              // ... dann wird er auf empfangen gesetzt
+              (*Elements)[e]->Alarm[i]->State = JCA_IOT_ELEMENT_ALARM_STATE_COMEACK;
+            }
+          case JCA_IOT_ELEMENT_ALARM_STATE_GONESEND:
+            // ... der Status ist gegangen und wurde bestätigt
+            if (Data["msg"]["state"] == JCA_IOT_ELEMENT_ALARM_STATE_GONE) {
+              // ... dann wird er auf inaktiv gesetzt
+              (*Elements)[e]->Alarm[i]->State = JCA_IOT_ELEMENT_ALARM_STATE_IDLE;
+            }
+        }
       }
       
       /***************************************
@@ -157,22 +324,29 @@ namespace JCA{ namespace IOT{ namespace MESH{
        *        Fügt dem MeshOut-Buffer eine Archiv-Nachricht für
        *        jeden Server hinzu.
        ***************************************/
-      void sendError(JsonObject &MeshOut, error Data){
+      bool sendError(JsonObject &MeshOut, iError Data){
         JsonArray Server;
         JsonObject Msg;
+        char srvId[11];
+        #if DEBUGLEVEL >= 2
+          Serial.print(F("SEND ERROR - type:"));
+          Serial.println(Data.type);
+        #endif
         // Alle erfallsten Server durchlaufen
         for (int srv = 0; srv < LogServers.size(); srv++){
+          sprintf(srvId, "%d", LogServers[srv].id);
           // Falls noch kein Eintrag für die NodeId existiert, diese erstellen
-          if (MeshOut->containsKey(LogServers[srv]->id)){
-            Server = MeshOut[LogServers[srv]->id];
+          if (MeshOut.containsKey(srvId)){
+            Server = MeshOut[srvId];
           }else{
-            Server = MeshOut->createNestedArray(LogServers[srv]->id);
+            Server = MeshOut.createNestedArray(srvId);
           }
           Msg = Server.createNestedObject();
           Msg["msgId"] = JCA_IOT_MESH_SRV_FAILLOG;
           Msg["type"] = Data.type;
           Msg["data"] = Data.data;
         }
+        return true;
       }
 
       /***************************************
@@ -181,25 +355,28 @@ namespace JCA{ namespace IOT{ namespace MESH{
        *        Fügt dem MeshOut-Buffer eine Archiv-Nachricht für
        *        jeden Server hinzu.
        ***************************************/
-      void sendArchivData(JsonObject &MeshOut, archivData Data){
+      bool sendArchivData(JsonObject &MeshOut, iArchivData Data){
         JsonArray Server;
         JsonObject Msg;
+        char srvId[11];
         // Alle erfallsten Server durchlaufen
         for (int srv = 0; srv < ArchivServers.size(); srv++){
+          sprintf(srvId, "%d", ArchivServers[srv].id);
           // Falls noch kein Eintrag für die NodeId existiert, diese erstellen
-          if (MeshOut->containsKey(ArchivServers[srv]->id)){
-            Server = MeshOut[ArchivServers[srv]->id];
+          if (MeshOut.containsKey(srvId)){
+            Server = MeshOut[srvId];
           }else{
-            Server = MeshOut->createNestedArray(ArchivServers[srv]->id);
+            Server = MeshOut.createNestedArray(srvId);
           }
           Msg = Server.createNestedObject();
           Msg["msgId"] = JCA_IOT_MESH_SRV_ARCHIVDATA;
           Msg["time"] = Data.timestamp;
           Msg["element"] = Data.elementIndex;
-          Msg["data"] = Data.datapointIndex;
+          Msg["archiv"] = Data.archivIndex;
           Msg["value"] = Data.value;
-          Msg["type"] = Data.typeMask;
+          Msg["trigger"] = Data.trigger;
         }
+        return true;
       }
       
       /***************************************
@@ -208,16 +385,18 @@ namespace JCA{ namespace IOT{ namespace MESH{
        *        Fügt dem MeshOut-Buffer eine Alarm-Nachricht für
        *        jeden Server hinzu.
        ***************************************/
-      void sendAlarm(JsonObject &MeshOut, alarm Data){
+      bool sendAlarm(JsonObject &MeshOut, iAlarm Data){
         JsonArray Server;
         JsonObject Msg;
+        char srvId[11];
         // Alle erfallsten Server durchlaufen
         for (int srv = 0; srv < AlarmServers.size(); srv++){
+          sprintf(srvId, "%d", AlarmServers[srv].id);
           // Falls noch kein Eintrag für die NodeId existiert, diese erstellen
-          if (MeshOut->containsKey(AlarmServers[srv]->id)){
-            Server = MeshOut[AlarmServers[srv]->id];
+          if (MeshOut.containsKey(srvId)){
+            Server = MeshOut[srvId];
           }else{
-            Server = MeshOut->createNestedArray(AlarmServers[srv]->id);
+            Server = MeshOut.createNestedArray(srvId);
           }
           Msg = Server.createNestedObject();
           Msg["msgId"] = JCA_IOT_MESH_SRV_ALARM;
@@ -226,11 +405,16 @@ namespace JCA{ namespace IOT{ namespace MESH{
           Msg["prio"] = Data.prio;
           Msg["eIdx"] = Data.elementIndex;
           Msg["aIdx"] = Data.alarmIndex;
+          Msg["state"] = Data.state;
         }
+        return true;
       }
       
     private:
       clientState State;
+      int32_t reqTimer;
+      uint32_t Timestamp;
+      uint32_t TimeMillis;
       std::vector<serverState> LogServers;
       std::vector<serverState> AlarmServers;
       std::vector<serverState> ArchivServers;
@@ -240,21 +424,26 @@ namespace JCA{ namespace IOT{ namespace MESH{
        * Info:  Funktion zur Erstellung eines Server-Request
        *        Fügt dem MeshOut-Buffer eine Broadcast-Nachricht hinzu
        ***************************************/
-      void sendSrvRequest(JsonObject &MeshOut){
+      bool sendSrvRequest(JsonObject &MeshOut){
         JsonArray Broadcasts;
         JsonObject Msg;
         
+        #if DEBUGLEVEL >= 2
+          Serial.println(F("SEND SRV REQUEST"));
+        #endif
+
         // Client-Status aktuallisieren
-        State = requesting;
+        State = cltRequesting;
         
         // Falls noch kein Broadcast Eintrag existiert diesen erstellen
-        if (MeshOut->containsKey("broadcast")){
-          Broascasts = MeshOut["broadcast"];
+        if (MeshOut.containsKey("broadcast")){
+          Broadcasts = MeshOut["broadcast"];
         }else{
-          Broascasts = MeshOut->createNestedArray("broadcast");
+          Broadcasts = MeshOut.createNestedArray("broadcast");
         }
         Msg = Broadcasts.createNestedObject();
         Msg["msgId"] = JCA_IOT_MESH_SRV_REQUEST;
+        return true;
       }
       
   };

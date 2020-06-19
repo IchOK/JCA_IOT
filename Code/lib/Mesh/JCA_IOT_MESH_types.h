@@ -22,8 +22,7 @@ namespace JCA{ namespace IOT{ namespace MESH{
   };
   typedef struct serverState {
     uint32_t id;
-    uint32_t wd;
-    unsigned char state;
+    int32_t wd;
   }serverState;
   typedef struct serverPublish {
     uint32_t timestamp;
@@ -34,21 +33,22 @@ namespace JCA{ namespace IOT{ namespace MESH{
   typedef struct iArchivData {
     uint32_t timestamp;
     unsigned char elementIndex;
-    unsigned char datapointIndex;
-    unsigned char typeMask;
+    unsigned char archivIndex;
+    unsigned char trigger;
     float value;
-  }archivData;
+  }iArchivData;
   typedef struct iAlarm {
     uint32_t timestamp;
     String   text;
     unsigned char prio;
     unsigned char elementIndex;
-    unsigned char datapointIndex;
-  }alarm;
+    unsigned char alarmIndex;
+    unsigned char state;
+  }iAlarm;
   typedef struct iError{
     uint16_t type;
     JsonObject data;
-  }error;
+  }iError;
   
   /***************************************
    * Config
@@ -85,7 +85,7 @@ namespace JCA{ namespace IOT{ namespace MESH{
     bool          onCycle;
     float         hyst;
     uint32_t      time;
-    uint32_t wd;
+    int32_t wd;
   }subsElement;
   typedef struct publishElement {
     uint16_t      subsId;
@@ -96,7 +96,7 @@ namespace JCA{ namespace IOT{ namespace MESH{
     bool          onCycle;
     float         hyst;
     uint32_t      time;
-    uint32_t      wd;
+    int32_t      wd;
   }publishElement;
   typedef struct iSubscribeFail {
     uint16_t      subsId;
