@@ -8,7 +8,7 @@
 #ifndef _JCA_IOT_MESH_TYPES_H
 #define _JCA_IOT_MESH_TYPES_H
 
-#include "JCA_IOT_ELEMENT_define.h"
+#include "Element/JCA_IOT_ELEMENT_define.h"
 
 namespace JCA{ namespace IOT{ namespace MESH{
   
@@ -128,5 +128,12 @@ namespace JCA{ namespace IOT{ namespace MESH{
     unsigned char qc;
   }iPublish;
 
+  /***************************************
+   * Handler
+   ***************************************/
+  typedef struct meshName {
+    uint32_t      id;
+    char          name[JCA_IOT_ELEMENT_NAME_LEN];
+  }meshName;
 }}}
 #endif

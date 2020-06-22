@@ -11,12 +11,25 @@
 // 9 : alle Debugmeldungen
 #define DEBUGLEVEL 2
 
-//#include <FS.h>
-#include <painlessMesh.h>
+//######################################################################
+//-- Mesh-Netzwerk --
+//######################################################################
+#include  "painlessMesh.h"
+
+#define   MESH_PREFIX     "JCAmesh"
+#define   MESH_PASSWORD   "T3f]xGX*J=QWDaZbv.v+M@3="
+#define   MESH_PORT       5555
+#define   MESH_CHANNEL    13 //Der Mesh-Channel muss dem WLAN-Channel entsprechen
+
+Scheduler userScheduler;  // to control your personal task
+painlessMesh  Mesh;
+
+//######################################################################
+//-- IOT --
+//######################################################################
 #include <ArduinoJson.h>
 
-#include "JCA_IOT_ELEMENT.h"
-#include "JCA_IOT_MESH.h"
+#include "JCA_IOT.h"
 
 using namespace JCA::IOT;
 
@@ -25,17 +38,15 @@ uint32_t StoreMillis;
 
 //JsonObject as Pointer
 JsonObject JConfig;
-//Painless-Mesh Instanz
-painlessMesh  Mesh;
 
 //Element Handler
-ELEMENT::cHandler IotHandler;
+ELEMENT::cHandler ElementHandler;
 
-//Mesh Teile einzeln Testen
-MESH::cConfig MeshConfig;
-MESH::cClient MeshClient;
-StaticJsonDocument<JCA_IOT_ELEMENT_HANDLER_JSON_DOCSIZE> JDocMesh;
-JsonObject MeshOut = JDocMesh.to<JsonObject>();;
+//Mesh Handler
+MESH::cHandler MeshHandler;
+void MeshHandlerRecv(uint32_t from, String msg){
+  MeshHandler.recvMsg(from, msg);
+}
 
 void setup() {
   bool RetIO;
@@ -44,18 +55,18 @@ void setup() {
     Serial.println("add Elements...");
   #endif
   //Add possible Elements
-  beginDI(IotHandler);
-  beginDO(IotHandler);
-  
-  //TEST
+  beginDI(ElementHandler);
+  beginDO(ElementHandler);
+
+  // Init PainlessMesh
+  Mesh.init( MESH_PREFIX, MESH_PASSWORD, &userScheduler, MESH_PORT, WIFI_AP_STA, MESH_CHANNEL );
+  Mesh.onReceive(&MeshHandlerRecv);
   
   // Mesh-Config
-  RetIO = MeshConfig.config("/Test.json", &(IotHandler.Elements), JConfig);
+  RetIO = MeshHandler.config("/Test.json", &(ElementHandler.Elements), JConfig, Mesh);
   
-  //TEST END
-
   //Konfig Element-Handler
-  RetIO = IotHandler.config(JConfig);
+  RetIO = ElementHandler.config(JConfig);
 
   StoreMillis = millis();
 }
@@ -68,7 +79,7 @@ void loop() {
     delay(2000);
   #endif
   StoreMillis = ActMillis;
-  IotHandler.update(DiffMillis, Timestamp);
-  MeshConfig.update(DiffMillis, Mesh);
-  MeshClient.update(&(IotHandler.Elements), MeshOut, DiffMillis, Timestamp);
+  ElementHandler.update(DiffMillis, Timestamp);
+//  MeshConfig.update(DiffMillis, Mesh);
+//  MeshClient.update(&(IotHandler.Elements), MeshOut, DiffMillis, Timestamp);
 }

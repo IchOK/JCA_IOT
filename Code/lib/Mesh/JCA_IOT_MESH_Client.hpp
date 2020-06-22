@@ -21,11 +21,11 @@
 #include <vector>
 #include <ArduinoJson.h>
 //Elemente einbinden für Update
-#include "JCA_IOT_ELEMENT_Root.hpp"
+#include "Element/JCA_IOT_ELEMENT_Root.hpp"
 
-#include "JCA_IOT_ELEMENT_define.h"
-#include "JCA_IOT_MESH_define.h"
-#include "JCA_IOT_MESH_types.h"
+#include "Element/JCA_IOT_ELEMENT_define.h"
+#include "Mesh/JCA_IOT_MESH_define.h"
+#include "Mesh/JCA_IOT_MESH_types.h"
 
 namespace JCA{ namespace IOT{ namespace MESH{
   class cClient{
@@ -55,7 +55,7 @@ namespace JCA{ namespace IOT{ namespace MESH{
        *        Timestamp [uint32_t]
        *            Aktueller Zeitstempel
        ***************************************/
-      uint32_t update(std::vector<ELEMENT::cRoot*> *Elements, JsonObject &MeshOut, uint32_t DiffMillis, uint32_t Timestamp){
+      uint32_t update(std::vector<ELEMENT::cRoot*> *Elements, JsonObject &MeshOut, uint32_t DiffMillis){
         int i;
         std::vector<serverState>::iterator srv;
         iArchivData archData;

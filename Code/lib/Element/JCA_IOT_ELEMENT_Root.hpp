@@ -21,11 +21,11 @@
 #ifndef _JCA_IOT_ELEMENT_ROOT_H
 #define _JCA_IOT_ELEMENT_ROOT_H
 
-#include "JCA_IOT_ELEMENT_define.h"
-#include "JCA_IOT_ELEMENT_Input.hpp"
-#include "JCA_IOT_ELEMENT_Data.hpp"
-#include "JCA_IOT_ELEMENT_Archiv.hpp"
-#include "JCA_IOT_ELEMENT_Alarm.hpp"
+#include "Element/JCA_IOT_ELEMENT_define.h"
+#include "Element/JCA_IOT_ELEMENT_Input.hpp"
+#include "Element/JCA_IOT_ELEMENT_Data.hpp"
+#include "Element/JCA_IOT_ELEMENT_Archiv.hpp"
+#include "Element/JCA_IOT_ELEMENT_Alarm.hpp"
 
 //Include extrenal
 #include <vector>

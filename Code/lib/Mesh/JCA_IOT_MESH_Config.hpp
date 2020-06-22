@@ -21,10 +21,10 @@
 #include <ArduinoJson.h>
 #include <painlessMesh.h>
 //Elemente einbinden für Update
-#include "JCA_IOT_ELEMENT_Root.hpp"
+#include "Element/JCA_IOT_ELEMENT_Root.hpp"
 
-#include "JCA_IOT_MESH_define.h"
-#include "JCA_IOT_MESH_types.h"
+#include "Mesh/JCA_IOT_MESH_define.h"
+#include "Mesh/JCA_IOT_MESH_types.h"
 
 namespace JCA{ namespace IOT{ namespace MESH{
   class cConfig{
@@ -71,7 +71,7 @@ namespace JCA{ namespace IOT{ namespace MESH{
        *        Element [std::vector<ELEMENT::cRoot*>]
        *            Zeiger auf die Elementsammlung
        ***************************************/
-      bool config(const char *ConfigFileName, std::vector<ELEMENT::cRoot*> *Elements, JsonObject& JConfig){
+      bool config(const char *ConfigFileName, std::vector<ELEMENT::cRoot*> *Elements, JsonObject& JConfig, painlessMesh &Mesh){
         #if DEBUGLEVEL >= 2
           Serial.println(F("START - cConfig.config()"));
         #endif
@@ -154,6 +154,9 @@ namespace JCA{ namespace IOT{ namespace MESH{
           // .. sonst wird die Chip-ID als eindeutige Identifikations verwendet.
           itoa(ESP.getChipId(),Role, JCA_IOT_ELEMENT_NAME_LEN);
         }
+        // Mesh-Node als OTA-Receiver konfiguriren
+        Mesh.initOTAReceive(Role);
+        
         #if DEBUGLEVEL >= 2
           Serial.print(F("    Node Name:"));
           Serial.println(Name);
