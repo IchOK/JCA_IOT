@@ -20,7 +20,10 @@
 #include <vector>
 #include <ArduinoJson.h>
 #include <painlessMesh.h>
+
 //Elemente einbinden für Update
+#include "JCA_IOT_Debug.h"
+
 #include "Element/JCA_IOT_ELEMENT_Root.hpp"
 
 #include "Mesh/JCA_IOT_MESH_define.h"
@@ -72,7 +75,7 @@ namespace JCA{ namespace IOT{ namespace MESH{
        *            Zeiger auf die Elementsammlung
        ***************************************/
       bool config(const char *ConfigFileName, std::vector<ELEMENT::cRoot*> *Elements, JsonObject& JConfig, painlessMesh &Mesh){
-        #if DEBUGLEVEL >= 2
+        #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
           Serial.println(F("START - cConfig.config()"));
         #endif
         FileName = ConfigFileName;
@@ -86,7 +89,7 @@ namespace JCA{ namespace IOT{ namespace MESH{
           QC = JCA_IOT_ELEMENT_QC_CONFCREAT;
           // .. der Fehlertext geschrieben.
           ErrorText = F("Failed to config file");
-          #if DEBUGLEVEL >= 1
+          #if (DEBUGLEVEL >= JCA_IOT_DEBUG_DIAG)
             Serial.println(ErrorText);
           #endif
           return false;
@@ -98,7 +101,7 @@ namespace JCA{ namespace IOT{ namespace MESH{
           QC = JCA_IOT_ELEMENT_QC_CONFCREAT;
           // .. der Fehlertext geschrieben.
           ErrorText = F("Failed to config file");
-          #if DEBUGLEVEL >= 1
+          #if (DEBUGLEVEL >= JCA_IOT_DEBUG_DIAG)
             Serial.println(ErrorText);
           #endif
           return false;
@@ -106,12 +109,16 @@ namespace JCA{ namespace IOT{ namespace MESH{
         // Die Datei-Länge wird geprüft, um sicher zu stellen 
         //  dass der JSON-Speicherbereich ausreicht.
         size_t Size = ConfigFile.size();
-        if(Size > JCA_IOT_ELEMENT_HANDLER_FILE_MAXSIZE){
+        #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
+          Serial.print(F("Filesize:"));
+          Serial.println(Size);
+        #endif
+        if(Size > JCA_IOT_MESH_CONFIG_FILE_MAXSIZE){
           // .. Ist die Datei zu gross wird der Quality-Code angepasst und 
           QC = JCA_IOT_ELEMENT_QC_CONFCREAT;
           // .. der Fehlertext geschrieben.
           ErrorText = F("Config file size is too large");
-          #if DEBUGLEVEL >= 1
+          #if (DEBUGLEVEL >= JCA_IOT_DEBUG_DIAG)
             Serial.println(ErrorText);
           #endif
           return false;
@@ -124,7 +131,7 @@ namespace JCA{ namespace IOT{ namespace MESH{
           // .. der Fehlertext geschrieben.
           ErrorText = F("deserialize FAILD: ");
           ErrorText += JError.c_str();
-          #if DEBUGLEVEL >= 1
+          #if (DEBUGLEVEL >= JCA_IOT_DEBUG_DIAG)
             Serial.println(ErrorText);
           #endif
           return false;
@@ -134,8 +141,8 @@ namespace JCA{ namespace IOT{ namespace MESH{
         //-------------------------------------------------------------------------------------------------------------
         
         //-------------------------------------------------------------------------------------------------------------
-        // CONFIG - Node Einstellunegn
-        #if DEBUGLEVEL >= 2
+        // CONFIG - Node Einstellungen
+        #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
           Serial.println(F("  START - global Settings"));
         #endif
         // Ist ein Name vorhanden ..
@@ -154,10 +161,38 @@ namespace JCA{ namespace IOT{ namespace MESH{
           // .. sonst wird die Chip-ID als eindeutige Identifikations verwendet.
           itoa(ESP.getChipId(),Role, JCA_IOT_ELEMENT_NAME_LEN);
         }
+
+        // Prüfen ob es sich um die Gateway-Node handelt
+        if (JConfig.containsKey("gateway")){
+          uint8_t IP[4];
+          uint8_t IP2[4] = {192,168,223,1};
+          IP[0] = JConfig["gateway"]["station"][0];
+          IP[1] = JConfig["gateway"]["station"][1];
+          IP[2] = JConfig["gateway"]["station"][2];
+          IP[3] = JConfig["gateway"]["station"][3];
+          //Mit Node-RED direkt verbinden
+          Mesh.stationManual(JConfig["gateway"]["ssid"].as<String>(), JConfig["gateway"]["pass"].as<String>(), JConfig["gateway"]["port"].as<uint16_t>(), IP);
+          Mesh.setRoot(true);
+          Mesh.setContainsRoot(true);
+          // Set Hostname
+          Mesh.setHostname(Name);
+          #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
+            Serial.println(F("    GATEWAY"));
+          Serial.print(F("      SSID:"));
+          Serial.println(JConfig["gateway"]["ssid"].as<String>());
+          Serial.print(F("      Pass:"));
+          Serial.println(JConfig["gateway"]["pass"].as<String>());
+          Serial.print(F("      Port:"));
+          Serial.println(JConfig["gateway"]["port"].as<uint16_t>());
+          Serial.print(F("      Station:"));
+          Serial.printf("%d.%d.%d.%d\r\n", IP[0], IP[1], IP[2], IP[3]);
+          #endif
+        }
+        
         // Mesh-Node als OTA-Receiver konfiguriren
         Mesh.initOTAReceive(Role);
         
-        #if DEBUGLEVEL >= 2
+        #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
           Serial.print(F("    Node Name:"));
           Serial.println(Name);
           Serial.print(F("    Node Role:"));
@@ -166,7 +201,7 @@ namespace JCA{ namespace IOT{ namespace MESH{
         #endif
         //-------------------------------------------------------------------------------------------------------------
         
-        #if DEBUGLEVEL >= 2
+        #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
           Serial.println(F("DONE - cConfig.config()"));
         #endif
         return true;
@@ -178,7 +213,7 @@ namespace JCA{ namespace IOT{ namespace MESH{
       uint32_t wd;
       String FileName;
       std::vector<ELEMENT::cRoot*> *ptrElements;
-      StaticJsonDocument<JCA_IOT_ELEMENT_HANDLER_JSON_DOCSIZE> JDoc;
+      StaticJsonDocument<JCA_IOT_MESH_CONFIG_JSON_DOCSIZE> JDoc;
   };
   
 }}}

@@ -20,9 +20,11 @@
 #include <map>
 #include <vector>
 #include <ArduinoJson.h>
-//Elemente einbinden für Update
-#include "Element/JCA_IOT_ELEMENT_Root.hpp"
 
+//Elemente einbinden für Update
+#include "JCA_IOT_Debug.h"
+
+#include "Element/JCA_IOT_ELEMENT_Root.hpp"
 #include "Element/JCA_IOT_ELEMENT_define.h"
 #include "Mesh/JCA_IOT_MESH_define.h"
 #include "Mesh/JCA_IOT_MESH_types.h"
@@ -52,6 +54,7 @@ namespace JCA{ namespace IOT{ namespace MESH{
        *            Puffer für ausgehende Mesh-Telegramme
        *        DiffMillis [uint32_t]
        *            Vergangene Zeit seit letztem Aufruf
+       * ReturnValue:
        *        Timestamp [uint32_t]
        *            Aktueller Zeitstempel
        ***************************************/
@@ -60,7 +63,7 @@ namespace JCA{ namespace IOT{ namespace MESH{
         std::vector<serverState>::iterator srv;
         iArchivData archData;
         iAlarm almData;
-        #if DEBUGLEVEL >= 9
+        #if (DEBUGLEVEL >= JCA_IOT_DEBUG_LOOP)
           Serial.println(F("CLIENT update"));
         #endif
         
@@ -72,14 +75,27 @@ namespace JCA{ namespace IOT{ namespace MESH{
         }
         
         // Elemente durchlaufen
+        #if (DEBUGLEVEL >= JCA_IOT_DEBUG_LOOP)
+          Serial.print(F("  Element:"));
+          Serial.println(Elements->size());
+        #endif
         for (int e = 0; e < Elements->size(); e++){
+          #if (DEBUGLEVEL >= JCA_IOT_DEBUG_LOOP)
+            Serial.printf("    %i:", e+1);
+          #endif
           //-----------------------------------------------------------------------------------------------------------
           // CHECK ARCHIVS
+          #if (DEBUGLEVEL >= JCA_IOT_DEBUG_LOOP)
+            Serial.printf(" Archives:%i", (*Elements)[e]->Archiv.size());
+          #endif
           for (i = 0; i < (*Elements)[e]->Archiv.size(); i++){
             // Wenn der Archiv-Trigger gesetzt wurde ...
+            #if (DEBUGLEVEL >= JCA_IOT_DEBUG_LOOP)
+              Serial.printf("[%i]", (*Elements)[e]->Archiv[i]->Trigger);
+            #endif
             if ((*Elements)[e]->Archiv[i]->Trigger != 0) {
               // ... wird das Telegram versendet und der Trigger gelöscht
-              #if DEBUGLEVEL >= 2
+              #if (DEBUGLEVEL >= JCA_IOT_DEBUG_TELEGRAM)
                 Serial.print(F("SEND ARCHIV - "));
                 Serial.println((*Elements)[e]->Archiv[i]->Name);
               #endif
@@ -95,12 +111,15 @@ namespace JCA{ namespace IOT{ namespace MESH{
           }
           //-----------------------------------------------------------------------------------------------------------
           // CHECK ALARMS
+          #if (DEBUGLEVEL >= JCA_IOT_DEBUG_LOOP)
+            Serial.printf(" Alarms:%i", (*Elements)[e]->Alarm.size());
+          #endif
           for (i = 0; i < (*Elements)[e]->Alarm.size(); i++){
             // Alarm-Status prüfen ...
             switch ((*Elements)[e]->Alarm[i]->State) {
               case JCA_IOT_ELEMENT_ALARM_STATE_COME:
                 // ... ist der Alarm gekommen wird, versenden und Status setzen
-                #if DEBUGLEVEL >= 2
+                #if (DEBUGLEVEL >= JCA_IOT_DEBUG_TELEGRAM)
                   Serial.print(F("SEND ALARM-COME - "));
                   Serial.println((*Elements)[e]->Alarm[i]->Name);
                 #endif
@@ -117,7 +136,7 @@ namespace JCA{ namespace IOT{ namespace MESH{
                 
               case JCA_IOT_ELEMENT_ALARM_STATE_GONE:
                 // ... ist der Alarm gekommen wird, versenden und Status setzen
-                #if DEBUGLEVEL >= 2
+                #if (DEBUGLEVEL >= JCA_IOT_DEBUG_TELEGRAM)
                   Serial.print(F("SEND ALARM-GONE - "));
                   Serial.println((*Elements)[e]->Alarm[i]->Name);
                 #endif
@@ -132,6 +151,9 @@ namespace JCA{ namespace IOT{ namespace MESH{
                 }
                 break;
             }
+          #if (DEBUGLEVEL >= JCA_IOT_DEBUG_LOOP)
+            Serial.println("");
+          #endif
           }
         }
         //-----------------------------------------------------------------------------------------------------------
@@ -142,7 +164,7 @@ namespace JCA{ namespace IOT{ namespace MESH{
           srv->wd -= DiffMillis;
           // Wenn der Timeout überschritten ist wird der Server aus der Liste entfernt
           if (srv->wd <= 0){
-            #if DEBUGLEVEL >= 2
+            #if (DEBUGLEVEL >= JCA_IOT_DEBUG_WATCHDOG)
               Serial.print(F("REMOVE LOGSRV - "));
               Serial.println(srv->id);
             #endif
@@ -154,17 +176,16 @@ namespace JCA{ namespace IOT{ namespace MESH{
         // Server-Request versenden , falls kein Logging-Server verfürbar ist
         if (LogServers.size() == 0){
           reqTimer -= DiffMillis;
-          #if DEBUGLEVEL >= 9
-            Serial.print(F("  LOGSRV REQTIMER - "));
+          #if (DEBUGLEVEL >= JCA_IOT_DEBUG_LOOP)
+            Serial.print(F("LOGSRV REQTIMER - "));
             Serial.println(reqTimer);
           #endif
           if (reqTimer <= 0){
             sendSrvRequest(MeshOut);
             reqTimer = random(JCA_IOT_MESH_SRV_TIMEREQ, JCA_IOT_MESH_SRV_TIMEREQ + JCA_IOT_MESH_SRV_TIMERANGE);
-            #if DEBUGLEVEL >= 2
+            #if (DEBUGLEVEL >= JCA_IOT_DEBUG_TELEGRAM)
               Serial.print(F("  Next "));
-              Serial.print(reqTimer);
-              serializeJsonPretty(MeshOut, Serial);
+              Serial.println(reqTimer);
             #endif
           }
         }
@@ -174,7 +195,7 @@ namespace JCA{ namespace IOT{ namespace MESH{
           srv->wd -= DiffMillis;
           // Wenn der Timeout überschritten ist wird der Server aus der Liste entfernt
           if (srv->wd <= 0){
-            #if DEBUGLEVEL >= 2
+            #if (DEBUGLEVEL >= JCA_IOT_DEBUG_WATCHDOG)
               Serial.print(F("REMOVE ALMSRV - "));
               Serial.println(srv->id);
             #endif
@@ -188,7 +209,7 @@ namespace JCA{ namespace IOT{ namespace MESH{
           srv->wd -= DiffMillis;
           // Wenn der Timeout überschritten ist wird der Server aus der Liste entfernt
           if (srv->wd <= 0){
-            #if DEBUGLEVEL >= 2
+            #if (DEBUGLEVEL >= JCA_IOT_DEBUG_WATCHDOG)
               Serial.print(F("REMOVE ARCSRV - "));
               Serial.println(srv->id);
             #endif
@@ -197,6 +218,7 @@ namespace JCA{ namespace IOT{ namespace MESH{
             ++srv;
           }
         }
+        return Timestamp;
       }
       
       /***************************************
@@ -211,19 +233,19 @@ namespace JCA{ namespace IOT{ namespace MESH{
         uint32_t id;
         std::vector<serverState>::iterator srv;
         id = Data["from"];
-        #if DEBUGLEVEL >= 2
+        #if (DEBUGLEVEL >= JCA_IOT_DEBUG_TELEGRAM)
           Serial.print(F("RECV SRVPUBLISH - "));
           Serial.print(id);
         #endif
         // Uhrzeit stellen
-        if (Data["msg"].containsKey("time")){
-          Timestamp = Data["msg"]["time"];
+        if (Data.containsKey("time")){
+          Timestamp = Data["time"];
           TimeMillis = 0;
         }
         
         // Zu Logging-Server-Liste hinzufügen oder watchdog zurück setzen
-        if (Data["msg"]["logging"]){
-          #if DEBUGLEVEL >= 2
+        if (Data["logging"]){
+          #if (DEBUGLEVEL >= JCA_IOT_DEBUG_TELEGRAM)
             Serial.print(F(" -logging"));
           #endif
           // Client-Status aktuallisieren
@@ -247,8 +269,8 @@ namespace JCA{ namespace IOT{ namespace MESH{
         }
         
         // Zu Alarming-Server-Liste hinzufügen oder watchdog zurück setzen
-        if (Data["msg"]["alarming"]){
-          #if DEBUGLEVEL >= 2
+        if (Data["alarming"]){
+          #if (DEBUGLEVEL >= JCA_IOT_DEBUG_TELEGRAM)
             Serial.print(F(" -alarming"));
           #endif
           notFound = true;
@@ -268,8 +290,8 @@ namespace JCA{ namespace IOT{ namespace MESH{
         }
         
         // Zu Archiv-Server-Liste hinzufügen oder watchdog zurück setzen
-        if (Data["msg"]["archiv"]){
-          #if DEBUGLEVEL >= 2
+        if (Data["archiv"]){
+          #if (DEBUGLEVEL >= JCA_IOT_DEBUG_TELEGRAM)
             Serial.print(F(" -archiv"));
           #endif
           notFound = true;
@@ -287,7 +309,7 @@ namespace JCA{ namespace IOT{ namespace MESH{
             ArchivServers.back().wd = random(JCA_IOT_MESH_SRV_TIMEWD, JCA_IOT_MESH_SRV_TIMEWD + JCA_IOT_MESH_SRV_TIMERANGE);
           }
         }
-        #if DEBUGLEVEL >= 2
+        #if (DEBUGLEVEL >= JCA_IOT_DEBUG_TELEGRAM)
           Serial.println("");
         #endif
       }
@@ -299,19 +321,19 @@ namespace JCA{ namespace IOT{ namespace MESH{
        *        Alarm.State auf Ack/Idle setzen
        ***************************************/
       void recvAlarmAck(std::vector<ELEMENT::cRoot*> *Elements, JsonObject Data){
-        unsigned char e = Data["msg"]["eIdx"].as<unsigned char>();
-        unsigned char i = Data["msg"]["aIdx"].as<unsigned char>();
+        unsigned char e = Data["eIdx"].as<unsigned char>();
+        unsigned char i = Data["aIdx"].as<unsigned char>();
         // Alarm-Status prüfen ...
         switch ((*Elements)[e]->Alarm[i]->State) {
           case JCA_IOT_ELEMENT_ALARM_STATE_COMESEND:
             // ... der Status ist gekommen und wurde bestätigt
-            if (Data["msg"]["state"] == JCA_IOT_ELEMENT_ALARM_STATE_COME) {
+            if (Data["state"] == JCA_IOT_ELEMENT_ALARM_STATE_COME) {
               // ... dann wird er auf empfangen gesetzt
               (*Elements)[e]->Alarm[i]->State = JCA_IOT_ELEMENT_ALARM_STATE_COMEACK;
             }
           case JCA_IOT_ELEMENT_ALARM_STATE_GONESEND:
             // ... der Status ist gegangen und wurde bestätigt
-            if (Data["msg"]["state"] == JCA_IOT_ELEMENT_ALARM_STATE_GONE) {
+            if (Data["state"] == JCA_IOT_ELEMENT_ALARM_STATE_GONE) {
               // ... dann wird er auf inaktiv gesetzt
               (*Elements)[e]->Alarm[i]->State = JCA_IOT_ELEMENT_ALARM_STATE_IDLE;
             }
@@ -328,7 +350,7 @@ namespace JCA{ namespace IOT{ namespace MESH{
         JsonArray Server;
         JsonObject Msg;
         char srvId[11];
-        #if DEBUGLEVEL >= 2
+        #if (DEBUGLEVEL >= JCA_IOT_DEBUG_DIAG)
           Serial.print(F("SEND ERROR - type:"));
           Serial.println(Data.type);
         #endif
@@ -360,6 +382,10 @@ namespace JCA{ namespace IOT{ namespace MESH{
         JsonObject Msg;
         char srvId[11];
         // Alle erfallsten Server durchlaufen
+        #if (DEBUGLEVEL >= JCA_IOT_DEBUG_LOOP)
+          Serial.print(F("  CountArchivServer:"));
+          Serial.println(ArchivServers.size());
+        #endif
         for (int srv = 0; srv < ArchivServers.size(); srv++){
           sprintf(srvId, "%d", ArchivServers[srv].id);
           // Falls noch kein Eintrag für die NodeId existiert, diese erstellen
@@ -370,11 +396,12 @@ namespace JCA{ namespace IOT{ namespace MESH{
           }
           Msg = Server.createNestedObject();
           Msg["msgId"] = JCA_IOT_MESH_SRV_ARCHIVDATA;
+          Msg["node"] = true;
           Msg["time"] = Data.timestamp;
-          Msg["element"] = Data.elementIndex;
-          Msg["archiv"] = Data.archivIndex;
+          Msg["eIdx"] = Data.elementIndex;
+          Msg["tIdx"] = Data.archivIndex;
           Msg["value"] = Data.value;
-          Msg["trigger"] = Data.trigger;
+          Msg["type"] = Data.trigger;
         }
         return true;
       }
@@ -401,8 +428,9 @@ namespace JCA{ namespace IOT{ namespace MESH{
           Msg = Server.createNestedObject();
           Msg["msgId"] = JCA_IOT_MESH_SRV_ALARM;
           Msg["time"] = Data.timestamp;
-          Msg["text"] = Data.text;
+          Msg["node"] = true;
           Msg["prio"] = Data.prio;
+          Msg["text"] = Data.text;
           Msg["eIdx"] = Data.elementIndex;
           Msg["aIdx"] = Data.alarmIndex;
           Msg["state"] = Data.state;
@@ -428,7 +456,7 @@ namespace JCA{ namespace IOT{ namespace MESH{
         JsonArray Broadcasts;
         JsonObject Msg;
         
-        #if DEBUGLEVEL >= 2
+        #if (DEBUGLEVEL >= JCA_IOT_DEBUG_TELEGRAM)
           Serial.println(F("SEND SRV REQUEST"));
         #endif
 

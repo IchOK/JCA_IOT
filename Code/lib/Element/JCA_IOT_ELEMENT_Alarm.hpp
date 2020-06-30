@@ -98,13 +98,13 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
         if (isGood()){
           Value = InValue;
           if (Value) {
-            TimestampCome = InTimestamp;
             if (State == JCA_IOT_ELEMENT_ALARM_STATE_IDLE) {
+              TimestampCome = InTimestamp;
               State = JCA_IOT_ELEMENT_ALARM_STATE_COME;
             }
           }else{
-            TimestampGone = InTimestamp;
             if (State == JCA_IOT_ELEMENT_ALARM_STATE_COMEACK) {
+              TimestampGone = InTimestamp;
               State = JCA_IOT_ELEMENT_ALARM_STATE_GONE;
             }
           }

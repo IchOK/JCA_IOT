@@ -52,9 +52,19 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
         ChangeHyst = InHyst;
         CycleTime = InTime;
         QC = JCA_IOT_ELEMENT_QC_DEFAULT;
+        #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
+          Serial.printf("    onCyclc:%i / %i - onChange:%i / ", OnCycle, CycleTime, OnChange);
+          Serial.println(ChangeHyst);
+        #endif
       }
 
       void update(const uint32_t DiffMillis) {
+        #if (DEBUGLEVEL >= JCA_IOT_DEBUG_LOOP)
+          Serial.printf("    Archivname:%s Count:%i(%i) Value:", Name, Counter, CycleTime);
+          Serial.print(Value);
+          Serial.print(" LastValue:");
+          Serial.println(LastValue);
+        #endif
         if (isGood()){
           // Zyklischen Trigger prüfen
           if (OnCycle) {
@@ -67,7 +77,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
           
           // Änderungs-Trigger prüfen
           if (OnChange) {
-            if (ChangeHyst <= abs(Value - LastValue) ) {
+            if (ChangeHyst <= abs(Value - LastValue) and false) {
               Trigger |= JCA_IOT_ELEMENT_TRIGGER_CHANGE;
               LastValue = Value;
             }

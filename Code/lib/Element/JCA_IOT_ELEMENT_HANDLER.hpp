@@ -31,6 +31,8 @@
 #include <ArduinoJson.h>
 #include <FS.h>
 
+#include "JCA_IOT_Debug.h"
+
 #include "Element/JCA_IOT_ELEMENT_Root.hpp"
 
 namespace JCA{ namespace IOT{ namespace ELEMENT{
@@ -76,7 +78,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
        *        DiffMillis [uint32_t] vergangene Zeit seit letztem Aufruf.
        ***************************************/
       void update(uint32_t DiffMillis, uint32_t Timestamp) {
-        #if DEBUGLEVEL >= 3
+        #if (DEBUGLEVEL >= JCA_IOT_DEBUG_LOOP)
           Serial.println(F("START - cHandler.update()"));
           Serial.printf("  DiffMillis:%i\r\n",DiffMillis);
         #endif
@@ -110,8 +112,22 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
           // Die Update Funktion ist spezifisch in jedem Element definiert {update(Millis)}
           //------------------------
           Elements[e]->update(DiffMillis, Timestamp);
+
+          //-----------------------------------------------------------------------------------------------------------
+          // UPDATE ARCHIVE
+          // Jedes Element [e] verfügt über einen Vector von Archivwerten {Archiv}.
+          for (int i = 0; i < Elements[e]->Archiv.size(); i++){
+            Elements[e]->Archiv[i]->update(DiffMillis);
+          }
+          
+          //-----------------------------------------------------------------------------------------------------------
+          // UPDATE ALARME
+          // Jedes Element [e] verfügt über einen Vector von Alarmen {Alarm}.
+          for (int i = 0; i < Elements[e]->Alarm.size(); i++){
+            Elements[e]->Alarm[i]->update(DiffMillis);
+          }
         }
-        #if DEBUGLEVEL >= 3
+        #if (DEBUGLEVEL >= JCA_IOT_DEBUG_LOOP)
           Serial.println(F("DONE - cHandler.update()"));
         #endif
       }
@@ -142,7 +158,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
         //    - File Upload
         //    - OnBoard-Blink Funktion
         //-------------------------------------------------------------------------------------------------------------
-        #if DEBUGLEVEL >= 2
+        #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
           Serial.println(F("  START - global Settings"));
         #endif
 
@@ -164,18 +180,18 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
         //
         //-------------------------------------------------------------------------------------------------------------
 
-        #if DEBUGLEVEL >= 2
+        #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
           Serial.println(F("  DONE - global Settings"));
         #endif
 
         //-------------------------------------------------------------------------------------------------------------
         // CONFIG - Elemente erzeugen
-        #if DEBUGLEVEL >= 2
+        #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
           Serial.println(F("  START - create Elements"));
         #endif
         // Für jedes Element im "elements"-Array erfolgt ein Eintrag in den Elemens-Vector
         for(JsonObject JElement : JConfig["elements"].as<JsonArray>()){
-          #if DEBUGLEVEL >= 2
+          #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
             if (JElement.containsKey("name")){
               Serial.print(F("    Element Name:"));
               Serial.println(JElement["name"].as<char*>());
@@ -183,7 +199,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
           #endif
           if (JElement.containsKey("type")){
             // .. das Element muss über eine "type"-Eigenschaft verfügen
-            #if DEBUGLEVEL >= 2
+            #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
               Serial.print(F("    Element Type:"));
               Serial.println(JElement["type"].as<char*>());
             #endif
@@ -195,7 +211,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
               QC = JCA_IOT_ELEMENT_QC_CONFCREAT;
               ErrorText = F("Unable to create Type ");
               ErrorText += JElement["type"].as<String>();
-              #if DEBUGLEVEL >= 1
+              #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
                 Serial.println(ErrorText);
               #endif
             }
@@ -206,7 +222,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
         if (QC != JCA_IOT_ELEMENT_QC_CONFCREAT) {
            QC = JCA_IOT_ELEMENT_QC_GOOD;
         }
-        #if DEBUGLEVEL >= 2
+        #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
           Serial.println(F("DONE - cHandler.config()"));
         #endif
         return true;

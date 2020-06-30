@@ -31,9 +31,7 @@
       "type":"AI",
       "config":{
         "pin":17,
-        "vcc":true,
-        "min":0,
-        "max":4
+        "vcc":true
       },
       "input":[],
       "data":[],
@@ -43,38 +41,11 @@
           "onChange":true,
           "hyst":0.5,
           "onCycle":true,
-          "time":10000,
-          "value":0
-        }
-      ],
-      "alarm":[]
-    },{
-      "name":"TestElementSinGen",
-      "type":"SinGen",
-      "config":{
-        "amp":10.0,
-        "period":10000
-      },
-      "input":[],
-      "data":[],
-      "archiv":[
-        {
-          "name":"Sinus",
-          "onChange":true,
-          "hyst":0.5,
-          "onCycle":true,
           "time":1000,
           "value":0
         }
       ],
-      "alarm":[
-        {
-          "name":"SinusMax",
-          "text":"Sinus at Max",
-          "prio":1,
-          "state":0
-        }
-      ]
+      "alarm":[]
     },{
       "name":"TestElementDO",
       "type":"DO",

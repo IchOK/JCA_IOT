@@ -25,6 +25,7 @@
 #include <vector>
 #include <ArduinoJson.h>
 
+#include "JCA_IOT_Debug.h"
 #include "Mesh/JCA_IOT_MESH_define.h"
 #include "Mesh/JCA_IOT_MESH_types.h"
 #include "Mesh/JCA_IOT_MESH_Client.hpp"
@@ -119,7 +120,10 @@ namespace JCA{ namespace IOT{ namespace MESH{
        *        JConfig [JsonObect&] Referenz zum Kongfigurations-Objekt
        *        Mesh [painlessMesh&] Referenz zum Mesh-Netzwerk
        ***************************************/
-      bool config(const char *ConfigFileName, std::vector<ELEMENT::cRoot*> *Elements, JsonObject& JConfig, painlessMesh &Mesh){
+      bool config(const char *ConfigFileName, std::vector<ELEMENT::cRoot*> *InElements, JsonObject& JConfig, painlessMesh &Mesh){
+        // Elements Pointer Speichern
+        Elements = InElements;
+        
         // Konfiguration einlesen
         Config.config(ConfigFileName, Elements, JConfig, Mesh);
         
@@ -140,31 +144,108 @@ namespace JCA{ namespace IOT{ namespace MESH{
        *        msg [String] empfangene Nachricht
        ***************************************/
       void recvMsg(uint32_t from, String &msg){
+        JsonArray MsgArray;
         JsonObject Data;
         bool NodeExists = false;
         
-        //create Data-Object
-        deserializeJson(JDocMsg, msg);
-        Data = JDocMsg.as<JsonObject>();
-        Data["from"] = from;
+        #if (DEBUGLEVEL >= JCA_IOT_DEBUG_TELEGRAM)
+          Serial.print(F("RECV-MESH -> From:"));
+          Serial.print(from);
+          Serial.print(F(" msg:"));
+          Serial.println(msg);
+        #endif
         
-        //switch betwen diffrent types and call subfunction
-        switch (Data["msgId"].as<int>()){
+        //create Msg-Array
+        deserializeJson(JDocMsg, msg);
+        MsgArray = JDocMsg.as<JsonArray>();
+        
+        //create Data-Object for each Msg in Array
+        for(JsonVariant MsgElement : MsgArray) {
+          Data = MsgElement.as<JsonObject>();
+          Data["from"] = from;
+          #if (DEBUGLEVEL >= JCA_IOT_DEBUG_INTERNAL)
+            String DataObjStr;
+            serializeJson(Data, DataObjStr);
+            Serial.println(F("RECV-MESH -> DataObject"));
+            Serial.println(DataObjStr);
+          #endif
+
           
-          // Hello Msg
-          case JCA_IOT_MESH_SRV_HELLO:
-            for(MeshNameIt = MeshNames.begin(); MeshNameIt != MeshNames.end(); ++MeshNameIt) {
-              if (MeshNameIt->id == from || strcmp(MeshNameIt->name, Data["name"]) == 0) {
-                MeshNameIt->id = from;
-                strncmp(MeshNameIt->name, Data["name"], JCA_IOT_ELEMENT_NAME_LEN);
-                NodeExists = true;
+          //switch betwen diffrent types and call subfunction
+          switch (Data["msgId"].as<int>()){
+            //-------------------------
+            // Server Publish
+            //-------------------------
+            case JCA_IOT_MESH_SRV_PUBLISH:
+              Client.recvSrvPublish(Data);
+              break;
+
+            //-------------------------
+            // Server Request Msg
+            //-------------------------
+            case JCA_IOT_MESH_SRV_REQUEST:
+              // not implemented at the Moment, maybe later if there will be a ServerNode for Logging or something
+              break;
+
+            //-------------------------
+            // Archiv Msg
+            //-------------------------
+            case JCA_IOT_MESH_SRV_ARCHIVDATA:
+              // not implemented at the Moment, maybe later if there will be a ServerNode for Archivdata
+              break;
+
+            //-------------------------
+            // Alarm Msg
+            //-------------------------
+            case JCA_IOT_MESH_SRV_ALARM:
+              // not implemented at the Moment, maybe later if there will be a ServerNode for Alarming (signal Lamp or Display)
+              break;
+
+            //-------------------------
+            // AlarmAck Msg
+            //-------------------------
+            case JCA_IOT_MESH_SRV_ALARMACK:
+              Client.recvAlarmAck(Elements, Data);
+              break;
+
+            //-------------------------
+            // Hello Msg
+            //-------------------------
+            case JCA_IOT_MESH_SRV_HELLO:
+              #if (DEBUGLEVEL >= JCA_IOT_DEBUG_TELEGRAM)
+                Serial.print(F("  Hello"));
+              #endif
+              for(MeshNameIt = MeshNames.begin(); MeshNameIt != MeshNames.end(); ++MeshNameIt) {
+                if (MeshNameIt->id == from || strcmp(MeshNameIt->name, Data["name"]) == 0) {
+                  #if (DEBUGLEVEL >= JCA_IOT_DEBUG_TELEGRAM)
+                    Serial.print(F("  Exist:"));
+                    Serial.println(Data["name"].as<String>());
+                  #endif
+                  MeshNameIt->id = from;
+                  strncmp(MeshNameIt->name, Data["name"], JCA_IOT_ELEMENT_NAME_LEN);
+                  NodeExists = true;
+                  break;
+                }
               }
-            }
-            if (!NodeExists) {
-              MeshNames.push_back(meshName());
-              MeshNames.back().id = from;
-              strncmp(MeshNames.back().name, Data["name"], JCA_IOT_ELEMENT_NAME_LEN);
-            }
+              if (!NodeExists) {
+                #if (DEBUGLEVEL >= JCA_IOT_DEBUG_TELEGRAM)
+                  Serial.print(F("  Add:"));
+                  Serial.println(Data["name"].as<String>());
+                #endif
+                MeshNames.push_back(meshName());
+                MeshNames.back().id = from;
+                strncmp(MeshNames.back().name, Data["name"], JCA_IOT_ELEMENT_NAME_LEN);
+              }
+              break;
+              
+            //-------------------------
+            // FailLog Msg
+            //-------------------------
+            case JCA_IOT_MESH_SRV_FAILLOG:
+              // not implemented at the Moment, maybe later if there will be a ServerNode for Error-Output (signal Lamp or Display)
+              break;
+                        
+          }
         }
       }
       
@@ -182,19 +263,63 @@ namespace JCA{ namespace IOT{ namespace MESH{
         // loop alt Destinations in Out-Buffer
         for (JsonPair BufElement : MeshOut) {
           InBuffer = BufElement.value();
-          // Outnachricht erweitern bis der String max. 1024 Zeichen lang ist
-
-          // Destination is a Broadcast
-          if (BufElement.key() == "broadcast"){
-            Mesh.sendBroadcast(OutMsg);
+          // Out-Nachricht erweitern bis der String max. 1024 Zeichen lang ist
+          for (int i = 0; i < InBuffer.size();){
+            if (OutMsgTmp.length() == 0){
+              OutMsgTmp = "[";
+            }else{
+              OutMsgTmp += ",";
+            }
+            // Index in Klartext wandeln
+            if (InBuffer[i]["eIdx"]){
+              InBuffer[i]["element"] = (*Elements)[InBuffer[i]["eIdx"].as<unsigned char>()]->Name;
+            }
+            if (InBuffer[i]["tIdx"]){
+              InBuffer[i]["tag"] = (*Elements)[InBuffer[i]["eIdx"].as<unsigned char>()]->Archiv[InBuffer[i]["tIdx"].as<unsigned char>()]->Name;
+            }
+            if (InBuffer[i]["aIdx"]){
+              InBuffer[i]["alarm"] = (*Elements)[InBuffer[i]["eIdx"].as<unsigned char>()]->Alarm[InBuffer[i]["aIdx"].as<unsigned char>()]->Name;
+            }
+            if (InBuffer[i]["dIdx"]){
+              InBuffer[i]["data"] = (*Elements)[InBuffer[i]["eIdx"].as<unsigned char>()]->Data[InBuffer[i]["dIdx"].as<unsigned char>()]->Name;
+            }
+            
+            // Node-Name ersetzen
+            if (InBuffer[i]["node"]){
+              InBuffer[i]["node"] = Config.Name;
+            }
+            
+            serializeJson(InBuffer[i], OutMsgTmp);
+            if (OutMsgTmp.length() < 1023) {
+              OutMsg = OutMsgTmp;
+              InBuffer.remove(i);
+            }else{
+              break;
+            }
           }
-          // Destination is a single Node
-          else{
-            uint32_t Dest;
-            Dest = atoi(BufElement.key().c_str());
-            Mesh.sendSingle(Dest, OutMsg);
+          
+          // Output Message created
+          if(OutMsg.length() > 0){
+              OutMsg += "]";
+            // Destination is a Broadcast
+            if (BufElement.key() == "broadcast"){
+              Mesh.sendBroadcast(OutMsg);
+            }
+            // Destination is a single Node
+            else{
+              uint32_t Dest;
+              Dest = atoi(BufElement.key().c_str());
+              Mesh.sendSingle(Dest, OutMsg);
+            }
           }
-        }        
+          
+          // Remove JsonPair if no Messages left
+          if (InBuffer.size() == 0){
+            MeshOut.remove(BufElement.key());
+          }
+        }
+        // Cleanup JsonDocument Storage
+        JDocBuffer.garbageCollect();
       }
       
       /***************************************
@@ -206,7 +331,7 @@ namespace JCA{ namespace IOT{ namespace MESH{
         JsonArray Broadcasts;
         JsonObject Msg;
         
-        #if DEBUGLEVEL >= 2
+        #if (DEBUGLEVEL >= JCA_IOT_DEBUG_TELEGRAM)
           Serial.println(F("SEND Hello"));
         #endif
 
@@ -218,7 +343,7 @@ namespace JCA{ namespace IOT{ namespace MESH{
         }
         Msg = Broadcasts.createNestedObject();
         Msg["msgId"] = JCA_IOT_MESH_SRV_HELLO;
-        Msg["name"] = Config.Name;
+        Msg["node"] = true;
       }
       
       

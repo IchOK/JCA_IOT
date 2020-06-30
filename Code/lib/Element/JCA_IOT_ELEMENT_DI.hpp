@@ -17,6 +17,8 @@
 #ifndef _JCA_IOT_ELEMENT_DI_H
 #define _JCA_IOT_ELEMENT_DI_H
 
+#include "JCA_IOT_Debug.h"
+
 #include "Element/JCA_IOT_ELEMENT_Root.hpp"
 #include "Element/JCA_IOT_ELEMENT_Handler.hpp"
 
@@ -47,15 +49,18 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
       }
     }
     
-    virtual void update(uint32_t DiffMillis) {
-      #if DEBUGLEVEL >= 3
+    virtual void update(uint32_t DiffMillis, uint32_t Timestamp) {
+      #if (DEBUGLEVEL >= JCA_IOT_DEBUG_LOOP)
         Serial.println(F(" START - cDI.update()"));
         Serial.printf("  Name:%s\r\n",Name);
       #endif
       
       //Inputs will be updated by the global Handler
+      
+      //Read digital Input
       DataInput.Value = digitalRead(Pin);
-      #if DEBUGLEVEL >= 3
+      
+      #if (DEBUGLEVEL >= JCA_IOT_DEBUG_LOOP)
         Serial.printf("  Value:%i\r\n",DataInput.Value);
         Serial.println(F(" DONE - cDI.update()"));
       #endif
@@ -64,7 +69,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
   };
   
   void createDI(JsonObject JConf, std::vector<JCA::IOT::ELEMENT::cRoot*>& InElements){
-    #if DEBUGLEVEL >= 2
+    #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
       Serial.println(F("START - createDI()"));
     #endif
     if (JConf.containsKey("name") && JConf.containsKey("config")){
@@ -76,17 +81,25 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
         InPin = JConf["config"]["pin"].as<unsigned char>();
         strncpy(InName, JConf["name"].as<char*>(), JCA_IOT_ELEMENT_NAME_LEN);
          
-        #if DEBUGLEVEL >= 2
-          Serial.printf("  Name:%s - Pin:%i\r\n", InName, InPin);
+        #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
+          Serial.printf("  Name:%s - Pin:%i", InName, InPin);
         #endif
         if (JConf["config"].containsKey("pullup")){
           InPullup = JConf["config"]["pullup"].as<bool>();
+          #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
+            Serial.printf(" - Pullup:%i\r\n", InPullup);
+          #endif
         }
+        #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
+          else{
+            Serial.println("");
+          }
+        #endif
         InElements.push_back(new cDI(InName, InPin, InPullup));
         InElements.back()->config(JConf);
       }
     }
-    #if DEBUGLEVEL >= 2
+    #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
       Serial.println(F("DONE - createDI()"));
     #endif
   };

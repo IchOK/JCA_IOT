@@ -330,7 +330,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
                     if (ConfigAlarm.containsKey("state")){
                       State = ConfigAlarm["state"].as<unsigned char>();
                     }
-                    Alarm[i]->config(ConfigAlarm["state"].as<char*>(), ConfigAlarm["state"].as<unsigned char>(), State);
+                    Alarm[i]->config(ConfigAlarm["text"].as<char*>(), ConfigAlarm["prio"].as<unsigned char>(), State);
                     break;
                   }
                 }

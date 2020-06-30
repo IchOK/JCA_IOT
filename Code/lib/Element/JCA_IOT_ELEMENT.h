@@ -5,5 +5,7 @@
 #include "Element/JCA_IOT_ELEMENT_Handler.hpp"
 #include "Element/JCA_IOT_ELEMENT_DI.hpp"
 #include "Element/JCA_IOT_ELEMENT_DO.hpp"
+#include "Element/JCA_IOT_ELEMENT_AI.hpp"
+#include "Element/JCA_IOT_ELEMENT_SinGen.hpp"
 
 #endif
