@@ -9,4 +9,17 @@
 		<item value="true" key="uncategorizedFilter"/>
 		<item value="true" key="internalFilter"/>
 	</section>
+	<section name="ImportExportAction">
+		<item value="org.xmind.ui.ImageExportWizard" key="ImportExportPage.STORE_SELECTED_EXPORT_WIZARD_ID"/>
+		<item value="org.xmind.ui.ImageExportWizard;org.xmind.ui.exports.vector.exportsvg;org.xmind.ui.aspose.export.pdf" key="ImportExportPage.store_recently_used_wizard_ids"/>
+		<list key="ImportExportPage.STORE_EXPANDED_EXPORT_CATEGORIES">
+			<item value="recentlyUsed"/>
+			<item value="org.xmind.ui.exportWizards.document"/>
+			<item value="org.xmind.ui.exportWizards.gantt"/>
+			<item value="org.xmind.ui.exportWizards.image"/>
+			<item value="org.xmind.ui.exportWizards.other"/>
+			<item value="org.xmind.ui.exportWizards.presentation"/>
+			<item value="org.xmind.ui.exportWizards.spreadSheet"/>
+		</list>
+	</section>
 </section>

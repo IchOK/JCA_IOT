@@ -12,6 +12,7 @@
 #define   MESH_PASSWORD   "T3f]xGX*J=QWDaZbv.v+M@3="
 #define   MESH_PORT       5555
 #define   MESH_CHANNEL    13 //Der Mesh-Channel muss dem WLAN-Channel entsprechen
+#define   CONFIG_FILE     "/Config.json"
 
 Scheduler UserScheduler;
 painlessMesh  Mesh;
@@ -32,7 +33,7 @@ painlessMesh  Mesh;
 // 7 : Scheduler Prints
 // 8 : Loop Prints
 // 9 : alle Debugmeldungen
-#define DEBUGLEVEL JCA_IOT_DEBUG_STARTUP //JCA_IOT_DEBUG_SCHEDULER //JCA_IOT_DEBUG_TELEGRAM
+#define DEBUGLEVEL JCA_IOT_DEBUG_NONE //JCA_IOT_DEBUG_STARTUP //JCA_IOT_DEBUG_SCHEDULER //JCA_IOT_DEBUG_TELEGRAM
 #define DEBUGLEVEL_M JCA_IOT_DEBUG_NONE //JCA_IOT_DEBUG_ALL //JCA_IOT_DEBUG_MESHDATA
 
 ADC_MODE(ADC_VCC);
@@ -118,6 +119,9 @@ void setup() {
     Serial.print(F("SET Mesh Debug to "));
     Serial.print(MeshDebug, BIN);
     Serial.println("");
+    Serial.print(F("BuildIn LED "));
+    Serial.print(LED_BUILTIN);
+    Serial.println("");
   #endif
 
   #if DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP
@@ -128,6 +132,9 @@ void setup() {
   beginDO(ElementHandler);
   beginAI(ElementHandler);
   beginSinGen(ElementHandler);
+  beginOR(ElementHandler);
+  beginCLOCKSPAN(ElementHandler);
+  beginCLOCKPULSE(ElementHandler);
 
   // Init PainlessMesh
   #if DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP
@@ -137,7 +144,7 @@ void setup() {
   Mesh.onReceive(&MeshHandlerRecv);
   
   // Mesh-Config
-  RetIO = MeshHandler.config("/Test.json", &(ElementHandler.Elements), JConfig, Mesh);
+  RetIO = MeshHandler.config(CONFIG_FILE, &(ElementHandler.Elements), JConfig, Mesh);
   
   //Konfig Element-Handler
   RetIO = ElementHandler.config(JConfig);

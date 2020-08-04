@@ -16,6 +16,10 @@
  *       -- cHandler
  *       -- config
  *       -- update
+ *    V1.0.1  BugFix      02.08.2020  JCA
+ *    -fixed sendMsg
+ *       -- srcNode Id auflösen für Fehlerberichte
+ *       -- dstNode mit lokalem Node-Name ersetzen
  **********************************************/
 
 #ifndef _JCA_IOT_MESH_HANDLER_H
@@ -287,6 +291,20 @@ namespace JCA{ namespace IOT{ namespace MESH{
             // Node-Name ersetzen
             if (InBuffer[i]["node"]){
               InBuffer[i]["node"] = Config.Name;
+            }
+
+            // Source-Node Name als Quelle des fehlerhaften Telegramms im Names-Vector suchen.
+            if (InBuffer[i]["srcNodeId"]){
+              for(MeshNameIt = MeshNames.begin(); MeshNameIt != MeshNames.end(); ++MeshNameIt) {
+                if (MeshNameIt->id == InBuffer[i]["srcNodeId"].as<uint32_t>){
+                  InBuffer[i]["srcNode"] = MeshNameIt->name;
+                  break;
+                }
+              }
+            }
+            // Localer Node Name des aufgetretenen Fehlers
+            if (InBuffer[i]["dstNode"]){
+              InBuffer[i]["dstNode"] = Config.Name;
             }
             
             serializeJson(InBuffer[i], OutMsgTmp);

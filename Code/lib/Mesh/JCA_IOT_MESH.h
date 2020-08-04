@@ -4,5 +4,6 @@
 #include "Mesh/JCA_IOT_MESH_Handler.hpp"
 #include "Mesh/JCA_IOT_MESH_Config.hpp"
 #include "Mesh/JCA_IOT_MESH_Client.hpp"
+#include "Mesh/JCA_IOT_MESH_Sync.hpp"
 
 #endif

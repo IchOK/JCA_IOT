@@ -96,16 +96,16 @@
       <children xsi:type="menu:ToolBar" xmi:id="_A8W6sEVtEeWqKcBDsQEnrw" elementId="org.xmind.ui.toolbar.mindmap" contributorURI="platform:/plugin/org.xmind.ui.menus">
         <children xsi:type="menu:DirectToolItem" xmi:id="_Epx1UEY2EeWIUIBrCUBfAw" elementId="org.xmind.ui.toolbar.mindmap.topic" contributorURI="platform:/plugin/org.xmind.ui.menus" label="%toolbar.topic.label" iconURI="platform:/plugin/org.xmind.ui.menus/icons/toolbar/e/topic.png" tooltip="%toolbar.topic.tooltip" contributionURI="bundleclass://org.xmind.ui.toolkit/org.xmind.ui.internal.e4handlers.ShowPullDownMenuToolItem">
           <menu xmi:id="_Epx1UUY2EeWIUIBrCUBfAw" elementId="org.xmind.ui.toolbar.mindmap.topic.menu" contributorURI="platform:/plugin/org.xmind.ui.menus">
-            <children xsi:type="menu:MenuSeparator" xmi:id="_Epx1UkY2EeWIUIBrCUBfAw" elementId="start" contributorURI="platform:/plugin/org.xmind.ui.menus" visible="false"/>
-            <children xsi:type="menu:MenuSeparator" xmi:id="_Epx1U0Y2EeWIUIBrCUBfAw" elementId="additions" contributorURI="platform:/plugin/org.xmind.ui.menus" visible="false"/>
-            <children xsi:type="menu:MenuSeparator" xmi:id="_Epx1VEY2EeWIUIBrCUBfAw" elementId="end" contributorURI="platform:/plugin/org.xmind.ui.menus" visible="false"/>
+            <children xsi:type="menu:MenuSeparator" xmi:id="_Epx1UkY2EeWIUIBrCUBfAw" elementId="start" contributorURI="platform:/plugin/org.xmind.ui.menus" visible="false" tooltip=""/>
+            <children xsi:type="menu:MenuSeparator" xmi:id="_Epx1U0Y2EeWIUIBrCUBfAw" elementId="additions" contributorURI="platform:/plugin/org.xmind.ui.menus" visible="false" tooltip=""/>
+            <children xsi:type="menu:MenuSeparator" xmi:id="_Epx1VEY2EeWIUIBrCUBfAw" elementId="end" contributorURI="platform:/plugin/org.xmind.ui.menus" visible="false" tooltip=""/>
           </menu>
         </children>
         <children xsi:type="menu:DirectToolItem" xmi:id="_BNaDACuFEeW589Z25pk4Ag" elementId="org.xmind.ui.toolbar.mindmap.insert" contributorURI="platform:/plugin/org.xmind.ui.menus" label="%toolbar.insert.label" iconURI="platform:/plugin/org.xmind.ui.menus/icons/toolbar/e/insert.png" tooltip="%toolbar.insert.tooltip" contributionURI="bundleclass://org.xmind.ui.toolkit/org.xmind.ui.internal.e4handlers.ShowPullDownMenuToolItem">
           <menu xmi:id="_Ppi8cCuFEeW589Z25pk4Ag" elementId="org.xmind.ui.toolbar.mindmap.insert.menu" contributorURI="platform:/plugin/org.xmind.ui.menus">
-            <children xsi:type="menu:MenuSeparator" xmi:id="_TfPxoEVuEeWqKcBDsQEnrw" elementId="start" contributorURI="platform:/plugin/org.xmind.ui.menus" visible="false"/>
-            <children xsi:type="menu:MenuSeparator" xmi:id="_ThLEQEVuEeWqKcBDsQEnrw" elementId="additions" contributorURI="platform:/plugin/org.xmind.ui.menus" visible="false"/>
-            <children xsi:type="menu:MenuSeparator" xmi:id="_TjFIwEVuEeWqKcBDsQEnrw" elementId="end" contributorURI="platform:/plugin/org.xmind.ui.menus" visible="false"/>
+            <children xsi:type="menu:MenuSeparator" xmi:id="_TfPxoEVuEeWqKcBDsQEnrw" elementId="start" contributorURI="platform:/plugin/org.xmind.ui.menus" visible="false" tooltip=""/>
+            <children xsi:type="menu:MenuSeparator" xmi:id="_ThLEQEVuEeWqKcBDsQEnrw" elementId="additions" contributorURI="platform:/plugin/org.xmind.ui.menus" visible="false" tooltip=""/>
+            <children xsi:type="menu:MenuSeparator" xmi:id="_TjFIwEVuEeWqKcBDsQEnrw" elementId="end" contributorURI="platform:/plugin/org.xmind.ui.menus" visible="false" tooltip=""/>
           </menu>
         </children>
       </children>
@@ -431,11 +431,11 @@
   </descriptors>
   <descriptors xmi:id="_W8IhYETZEeaGL5Gu2uBiyA" elementId="org.xmind.ui.modelPart.image" contributorURI="platform:/plugin/org.xmind.ui.mindmap" label="%part.image.label" tooltip="%part.image.tooltip" closeable="true" contributionURI="bundleclass://org.xmind.ui.mindmap/org.xmind.ui.internal.e4models.ImagePart">
     <persistedState key="modelPart.pages.contributionUri" value="bundleclass://org.xmind.ui.gallery/org.xmind.ui.internal.gallery.ClipArtModelPage,bundleclass://org.xmind.ui.iconfinder/org.xmind.ui.internal.iconfinder.IconfinderModelPage"/>
-    <menus xmi:id="_vRFvwawnEeqkYf2jz5SDyw" elementId="org.xmind.ui.modelPart.image.menus.clipArt">
+    <menus xmi:id="_rKTPEc3dEeqfbNl2THaC6w" elementId="org.xmind.ui.modelPart.image.menus.clipArt">
       <tags>ViewMenu</tags>
       <tags>org.xmind.ui.modelPart.image.pages.clipArt</tags>
     </menus>
-    <menus xmi:id="_vRO5sKwnEeqkYf2jz5SDyw" elementId="org.xmind.ui.modelPart.image.menus.iconfinder">
+    <menus xmi:id="_rKmKAM3dEeqfbNl2THaC6w" elementId="org.xmind.ui.modelPart.image.menus.iconfinder">
       <tags>ViewMenu</tags>
       <tags>org.xmind.ui.modelPart.image.pages.iconfinder</tags>
     </menus>
