@@ -58,6 +58,9 @@ bridge_ports eth0 wlan0
 # Reboot
 >sudo reboot
 
+###################################
+# wenn SQL verwendet wird
+###################################
 # SQLite installieren
 >sudo apt-get install sqlite3
 
@@ -79,4 +82,14 @@ bridge_ports eth0 wlan0
 # Webseite: IP/phpliteadmin
 # Passwort: admin
 
+###################################
+# wenn MongoDB verwendet wird
+###################################
+# MongoDB installieren
+>sudo apt update
+>sudo apt upgrade
 
+>sudo apt install mongodb
+
+>sudo systemctl enable mongodb
+>sudo systemctl start mongodb
