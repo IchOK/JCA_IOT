@@ -8,10 +8,14 @@
  *   -add Properties
  *     -- Pin
  *     -- Pullup
- *     -- DataInput
+ *     -- AutoValue
  *   -add Methoden
  *     -- cDI
  *     -- update
+ *    V1.0.1   Erweiterung  03.08.2020  JCA
+ *    -add Properties
+ *       -- ManMode
+ *       -- ManValue
  **********************************************/
 
 #ifndef _JCA_IOT_ELEMENT_DI_H
@@ -27,45 +31,67 @@
 
 namespace JCA{ namespace IOT{ namespace ELEMENT{
   class cDI : public cRoot {
-   public:
-    unsigned char Pin;
-    bool Pullup;
-    cDataBool  DataInput;
-    
-    cDI(const char* InName, const unsigned char InPin, const bool InPullup) : cRoot(InName, JCA_IOT_ELEMENT_TYPE_DI) {
+    public:
+      unsigned char Pin;
+      bool Pullup;
+      bool Invert;
+      cDataBool   ManMode;
+      cDataBool   AutoValue;
+      cDataBool   ManValue;
+      cDataBool   Value;
       
-      // init Data
-      DataInput.init("Value");
-      // add Data to Vector
-      Data.push_back((cData*)(&DataInput));
-      
-      // init DI
-      Pin = InPin;
-      Pullup = InPullup;
-      if (Pullup){
-        pinMode(Pin, INPUT_PULLUP);
-      } else {
-        pinMode(Pin, INPUT);
+      cDI(const char* InName, const unsigned char InPin, const bool InPullup, bool InInvert) : cRoot(InName, JCA_IOT_ELEMENT_TYPE_DI) {
+        
+        // init Data
+        ManMode.init("Manual");
+        AutoValue.init("AutoValue");
+        ManValue.init("ManualValue");
+        Value.init("Value");
+        // add Data to Vector
+        Data.push_back((cData*)(&ManMode));
+        Data.push_back((cData*)(&AutoValue));
+        Data.push_back((cData*)(&ManValue));
+        Data.push_back((cData*)(&Value));
+        
+        // init DI
+        Pin = InPin;
+        Pullup = InPullup;
+        if (Pullup){
+          pinMode(Pin, INPUT_PULLUP);
+        } else {
+          pinMode(Pin, INPUT);
+        }
+        Invert = InInvert;
       }
-    }
-    
-    virtual void update(uint32_t DiffMillis, uint32_t Timestamp) {
-      #if (DEBUGLEVEL >= JCA_IOT_DEBUG_LOOP)
-        Serial.println(F(" START - cDI.update()"));
-        Serial.printf("  Name:%s\r\n",Name);
-      #endif
       
-      //Inputs will be updated by the global Handler
-      
-      //Read digital Input
-      DataInput.Value = digitalRead(Pin);
-      
-      #if (DEBUGLEVEL >= JCA_IOT_DEBUG_LOOP)
-        Serial.printf("  Value:%i\r\n",DataInput.Value);
-        Serial.println(F(" DONE - cDI.update()"));
-      #endif
-    }
-    
+      virtual void update(uint32_t DiffMillis, uint32_t Timestamp) {
+        #if (DEBUGLEVEL >= JCA_IOT_DEBUG_LOOP)
+          Serial.println(F(" START - cDI.update()"));
+          Serial.printf("  Name:%s\r\n",Name);
+        #endif
+        
+        //Read AutoValue from Input-Pin
+        if (Invert){
+          AutoValue.Value = !digitalRead(Pin);
+        }else{
+          AutoValue.Value = digitalRead(Pin);
+        }
+        
+        if(ManMode.Value){
+          //Manual-Mode: Move ManValue to Program-Value
+          Value.Value = ManValue.Value;
+        }else{
+          //Auto-Mode: Move AutoValue to Program-Value
+          Value.Value = AutoValue.Value;
+          // .. updating ManValue 
+          ManValue.Value = AutoValue.Value;
+        }
+        
+        #if (DEBUGLEVEL >= JCA_IOT_DEBUG_LOOP)
+          Serial.printf("  Value:%i\r\n",AutoValue.Value);
+          Serial.println(F(" DONE - cDI.update()"));
+        #endif
+      }
   };
   
   void createDI(JsonObject JConf, std::vector<JCA::IOT::ELEMENT::cRoot*>& InElements){
@@ -77,10 +103,15 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
         char InName[JCA_IOT_ELEMENT_NAME_LEN];
         unsigned char InPin;
         bool InPullup = false;
+        bool Invert = false;
         
         InPin = JConf["config"]["pin"].as<unsigned char>();
         strncpy(InName, JConf["name"].as<char*>(), JCA_IOT_ELEMENT_NAME_LEN);
-         
+        
+        if (JConf["config"].containsKey("invert")){
+          Invert = JConf["config"]["pin"].as<bool>();
+        }
+        
         #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
           Serial.printf("  Name:%s - Pin:%i", InName, InPin);
         #endif
@@ -95,7 +126,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
             Serial.println("");
           }
         #endif
-        InElements.push_back(new cDI(InName, InPin, InPullup));
+        InElements.push_back(new cDI(InName, InPin, InPullup, Invert));
         InElements.back()->config(JConf);
       }
     }
