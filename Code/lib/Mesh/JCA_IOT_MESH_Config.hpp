@@ -161,8 +161,31 @@ namespace JCA{ namespace IOT{ namespace MESH{
           // .. sonst wird die Chip-ID als eindeutige Identifikations verwendet.
           itoa(ESP.getChipId(),Role, JCA_IOT_ELEMENT_NAME_LEN);
         }
+        //-------------------------------------------------------------------------------------------------------------
+        
+        //-------------------------------------------------------------------------------------------------------------
+        // CONFIG - Netzwerk Einstellungen
+        // TODO
+        // Ist eine Konfiguration vorhanden ..
+        // .. wird das Node mit dem Mesh-Netzwerk verbunden
+        //    und der Node-Handler initialisiert
+        // .. sonst wird ein lokaler AP gestartet
+        //    und ein Webserver
+        //    mit einer Konfigurations-Webseite
+        //    - File Upload
+        //    - OnBoard-Blink Funktion
+        //
+        //  TTTTT  OOO  DDD    OOO 
+        //    T   O   O D  D  O   O
+        //    T   O   O D   D O   O
+        //    T   O   O D   D O   O
+        //    T   O   O D  D  O   O
+        //    T    OOO  DDD    OOO 
+        //
+        //-------------------------------------------------------------------------------------------------------------
 
-        // Prüfen ob es sich um die Gateway-Node handelt
+        //-------------------------------------------------------------------------------------------------------------
+        // CONFIG - Gateway Einstellungen (falls es sich um eine Gateway-Node handelt)
         if (JConfig.containsKey("gateway")){
           uint8_t IP[4];
           uint8_t IP2[4] = {192,168,223,1};

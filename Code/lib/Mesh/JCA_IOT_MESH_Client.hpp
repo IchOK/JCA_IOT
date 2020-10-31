@@ -32,6 +32,8 @@
 namespace JCA{ namespace IOT{ namespace MESH{
   class cClient{
     public:
+      uint32_t Timestamp;
+
       /***************************************
        * Methode: cClient()
        * Info:  Der Konstruktor initialisiert Server-Vektoren
@@ -349,6 +351,7 @@ namespace JCA{ namespace IOT{ namespace MESH{
       bool sendError(JsonObject &MeshOut, iError Data){
         JsonArray Server;
         JsonObject Msg;
+        JsonObject ErrData;
         char srvId[11];
         #if (DEBUGLEVEL >= JCA_IOT_DEBUG_DIAG)
           Serial.print(F("SEND ERROR - type:"));
@@ -441,7 +444,6 @@ namespace JCA{ namespace IOT{ namespace MESH{
     private:
       clientState State;
       int32_t reqTimer;
-      uint32_t Timestamp;
       uint32_t TimeMillis;
       std::vector<serverState> LogServers;
       std::vector<serverState> AlarmServers;

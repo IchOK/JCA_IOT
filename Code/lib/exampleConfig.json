@@ -1,12 +1,12 @@
 {
   "name":"TestNode",
   "role":"FirmewareTest",
-  "konfig":{
+  "config":{
     "i2c":true,
-    "i2c_konfig":{"sda":4, "scl":5},
+    "i2c_config":{"sda":4, "scl":5},
     "spi":false,
-    "onewire":true,
-    "onewire_konfig":{"pin":15}
+    "oneWire":true,
+    "oneWire_config":{"pin":2}
   },
   "elements":[
     {
@@ -45,7 +45,27 @@
         }
       ]
     },{
-      "name":"TestElementDI",
+      "name":"Test_AI",
+      "type":"AI",
+      "config":{
+        "pin":17,
+        "vcc":true
+      },
+      "input":[],
+      "data":[],
+      "archiv":[
+        {
+          "name":"AnalogIn",
+          "onChange":true,
+          "hyst":0.5,
+          "onCycle":true,
+          "time":1000,
+          "value":0
+        }
+      ],
+      "alarm":[]
+    },{
+      "name":"Test_DI",
       "type":"DI",
       "config":{
         "pin":14,
@@ -56,7 +76,7 @@
       "archiv":[],
       "alarm":[]
     },{
-      "name":"TestElementDO",
+      "name":"Test_DO",
       "type":"DO",
       "config":{
         "pin":16
@@ -66,6 +86,61 @@
           "name":"Input",
           "element":0,
           "data":0
+        }
+      ],
+      "data":[],
+      "archiv":[],
+      "alarm":[]
+    },{
+      "name":"Test_ClockSpan",
+      "type":"ClockSpan",
+      "input":[],
+      "data":[
+        {
+          "name":"TimeOn",
+          "value":23400
+        },{
+          "name":"TimeOff",
+          "value":66600
+        }
+      ],
+      "archiv":[],
+      "alarm":[]
+    },{
+      "name":"Test_ClockPulse",
+      "type":"ClockPulse",
+      "input":[],
+      "data":[
+        {
+          "name":"Time",
+          "value":28800
+        },{
+          "name":"Pulse",
+          "value":54000
+        }
+      ],
+      "archiv":[],
+      "alarm":[]
+    },{
+      "name":"Test_OR",
+      "type":"OR",
+      "input":[
+        {
+          "name":"Input1",
+          "element":2,
+          "data":3
+        },{
+          "name":"Input2",
+          "element":3,
+          "data":3
+        },{
+          "name":"Input3",
+          "element":4,
+          "data":3
+        },{
+          "name":"Input4",
+          "element":4,
+          "data":3
         }
       ],
       "data":[],

@@ -96,7 +96,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
   
   void createAI(JsonObject JConf, std::vector<JCA::IOT::ELEMENT::cRoot*>& InElements){
     #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
-      Serial.println(F("START - createAI()"));
+      Serial.println(F("    START - createAI()"));
     #endif
     if (JConf.containsKey("name") && JConf.containsKey("config")){
       if (JConf["config"].containsKey("pin")){
@@ -113,7 +113,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
         strncpy(InName, JConf["name"].as<char*>(), JCA_IOT_ELEMENT_NAME_LEN);
          
         #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
-          Serial.printf("  Name:%s - Pin:%i - VCC:%i - Min:", InName, InPin, readVCC);
+          Serial.printf("      Name:%s - Pin:%i - VCC:%i - Min:", InName, InPin, readVCC);
           Serial.print(InMin);
           Serial.print(F(" - Max:"));
           Serial.println(InMax);
@@ -124,7 +124,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
       }
     }
     #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
-      Serial.println(F("DONE - createAI()"));
+      Serial.println(F("    DONE - createAI()"));
     #endif
   };
   

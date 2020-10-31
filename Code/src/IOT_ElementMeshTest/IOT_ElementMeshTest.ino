@@ -33,7 +33,7 @@ painlessMesh  Mesh;
 // 7 : Scheduler Prints
 // 8 : Loop Prints
 // 9 : alle Debugmeldungen
-#define DEBUGLEVEL JCA_IOT_DEBUG_ALL //JCA_IOT_DEBUG_STARTUP //JCA_IOT_DEBUG_SCHEDULER //JCA_IOT_DEBUG_TELEGRAM
+#define DEBUGLEVEL JCA_IOT_DEBUG_STARTUP //JCA_IOT_DEBUG_INTERNAL //JCA_IOT_DEBUG_STARTUP //JCA_IOT_DEBUG_SCHEDULER //JCA_IOT_DEBUG_TELEGRAM
 #define DEBUGLEVEL_M JCA_IOT_DEBUG_NONE //JCA_IOT_DEBUG_ALL //JCA_IOT_DEBUG_MESHDATA
 
 // Hardware Erweiterungen und Bussysteme
@@ -134,12 +134,14 @@ void setup() {
   beginDI(ElementHandler);
   beginDO(ElementHandler);
   beginAI(ElementHandler);
+  beginAV(ElementHandler);
   beginSinGen(ElementHandler);
   beginOR(ElementHandler);
-  beginCLOCKSPAN(ElementHandler);
-  beginCLOCKPULSE(ElementHandler);
+  beginClockSpan(ElementHandler);
+  beginClockPulse(ElementHandler);
   beginHeatCool(ElementHandler);
   beginDS18B20(ElementHandler);
+  beginPWM(ElementHandler);
 
   // Init PainlessMesh
   #if DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP

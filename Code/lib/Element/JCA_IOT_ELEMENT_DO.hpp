@@ -100,7 +100,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
 
   void createDO(JsonObject JConf, std::vector<JCA::IOT::ELEMENT::cRoot*>& InElements){
     #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
-       Serial.println(F("START - createDO()"));
+       Serial.println(F("    START - createDO()"));
     #endif
     if (JConf.containsKey("name") && JConf.containsKey("config")){
       if (JConf["config"].containsKey("pin")){
@@ -116,14 +116,14 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
         }
         
         #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
-          Serial.printf("  Name:%s - Pin:%i\r\n", InName, InPin);
+          Serial.printf("      Name:%s - Pin:%i\r\n", InName, InPin);
         #endif
         InElements.push_back(new cDO(InName, InPin, Invert));
         InElements.back()->config(JConf);
       }
     }
     #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
-      Serial.println(F("DONE - createDO()"));
+      Serial.println(F("    DONE - createDO()"));
     #endif
   };
    

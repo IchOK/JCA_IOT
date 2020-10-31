@@ -89,7 +89,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
   
   void createSinGen(JsonObject JConf, std::vector<JCA::IOT::ELEMENT::cRoot*>& InElements){
     #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
-      Serial.println(F("START - createSinGen()"));
+      Serial.println(F("    START - createSinGen()"));
     #endif
     if (JConf.containsKey("name") && JConf.containsKey("config")){
       if (JConf["config"].containsKey("amp") && JConf["config"].containsKey("period")){
@@ -102,7 +102,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
         strncpy(InName, JConf["name"].as<char*>(), JCA_IOT_ELEMENT_NAME_LEN);
          
         #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
-          Serial.print(F("  Amp:"));
+          Serial.print(F("      Amp:"));
           Serial.print(InAmp);
           Serial.print(F(" - Freq:"));
           Serial.println(InPeriod);
@@ -113,7 +113,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
       }
     }
     #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
-      Serial.println(F("DONE - createSinGen()"));
+      Serial.println(F("    DONE - createSinGen()"));
     #endif
   };
   

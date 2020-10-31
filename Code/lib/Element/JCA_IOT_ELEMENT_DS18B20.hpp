@@ -43,16 +43,17 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
       uint8_t   Raw[12];
       int32_t   Resend;
       uint32_t  LastUpdate;
+      bool      ReadData;
       //Config
       uint8_t   Type;
       uint8_t   Addr[8];
       uint8_t   Watchdog;
-      uint8_t   UpdateTime;
+      uint16_t  UpdateTime;
       
     public:
       cDataFloat  Value;
       
-      cDS18B20(const char* InName, const uint8_t* InAddr, const uint8_t InWatchdog, const uint8_t InUpdateTime) : cRoot(InName, JCA_IOT_ELEMENT_TYPE_DS18B20) {
+      cDS18B20(const char* InName, const uint8_t* InAddr, const uint8_t InWatchdog, const uint16_t InUpdateTime) : cRoot(InName, JCA_IOT_ELEMENT_TYPE_DS18B20) {
         int i;
         
         // init Data
@@ -75,6 +76,15 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
             this->Type = 0;
             break;
         }
+
+        // Cinfig Data
+        this->Watchdog = InWatchdog;
+        this->UpdateTime = InUpdateTime;
+
+        // Runtime Data
+        this->Resend = 0;
+        this->ReadData = false;
+        this->LastUpdate = 0;
       }
       
       virtual void update(uint32_t DiffMillis, uint32_t Timestamp) {
@@ -101,11 +111,14 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
           if(JCA_OneWire.reset()){
             JCA_OneWire.select(this->Addr);
             JCA_OneWire.write(JCA_IOT_ELEMENT_DS18B20_CMD_CONV);
-            this->Resend = this->UpdateTime;
+            this->Resend = (uint32_t)(this->UpdateTime);
+            this->ReadData = true;
+          } else {
+            this->Resend = 100;
           }
         }
         // checking if Convetion is Done
-        else{
+        else if(this->ReadData){
           // OneWire Bus is free to write Data
           if(JCA_OneWire.reset()){
             // send Data Request
@@ -138,16 +151,23 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
                 }
               }
               Value.Value = (float)raw / 16.0;
-              this->Resend = 0;
+              #if (DEBUGLEVEL >= JCA_IOT_DEBUG_INTERNAL)
+                Serial.printf("INTERNAL [%010i] %s : Temp=",Timestamp, Name);
+                Serial.println(Value.Value);
+              #endif
               this->LastUpdate = Timestamp;
               this->QC = JCA_IOT_ELEMENT_QC_GOOD;
+              this->ReadData = false;
             }
           }
+          this->Resend -= DiffMillis;
+        } else {
           this->Resend -= DiffMillis;
         }
         
         #if (DEBUGLEVEL >= JCA_IOT_DEBUG_LOOP)
-          Serial.printf("  Value:%i\r\n",Value.Value);
+          Serial.print("  Value:");
+          Serial.println(Value.Value);
           Serial.println(F(" DONE - cDS18B20.update()"));
         #endif
       }
@@ -155,42 +175,44 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
   
   void createDS18B20(JsonObject JConf, std::vector<JCA::IOT::ELEMENT::cRoot*>& InElements){
     #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
-      Serial.println(F("START - createDS18B20()"));
+      Serial.println(F("    START - createDS18B20()"));
     #endif
     if (JConf.containsKey("name") && JConf.containsKey("config")){
-      if (JConf["config"].containsKey("pin")){
+      if (JConf["config"].containsKey("addr") && JConf["config"].containsKey("watchdog") && JConf["config"].containsKey("updateTime")){
         int i;
         char InName[JCA_IOT_ELEMENT_NAME_LEN];
         uint8_t   InAddr[8];
         uint8_t   InWatchdog = 60;
-        uint8_t   InUpdateTime = 10;
+        uint16_t   InUpdateTime = 1000;
         
         strncpy(InName, JConf["name"].as<char*>(), JCA_IOT_ELEMENT_NAME_LEN);
         #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
-          Serial.printf("  Name:%s", InName);
+          Serial.printf("      Name:%s", InName);
         #endif
-        for (i=0; i<8; i++) {
-          InAddr[i] = JConf["config"]["addr"].as<JsonArray>()[i].as<uint8_t>();
+        i=0;
+        for(JsonVariant v : JConf["config"]["addr"].as<JsonArray>()) {
+          InAddr[i] = v.as<uint8_t>();
           #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
             if (i==0){
-              Serial.printf("- Adr:%02X", InName, InAddr[0]);
+              Serial.printf("- Adr:%i", InAddr[i]);
             }else{
-              Serial.printf("-%02X", InName, InAddr[i]);
+              Serial.printf("-%i", InAddr[i]);
             }
           #endif
+          i++;
         }
         
         if (JConf["config"].containsKey("watchdog")){
           InWatchdog = JConf["config"]["watchdog"].as<uint8_t>();
           #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
-            Serial.printf(" - Watchdog:%i\r\n", InWatchdog);
+            Serial.printf(" - Watchdog:%i", InWatchdog);
           #endif
         }
         
         if (JConf["config"].containsKey("updateTime")){
-          InUpdateTime = JConf["config"]["updateTime"].as<uint8_t>();
+          InUpdateTime = JConf["config"]["updateTime"].as<uint16_t>();
           #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
-            Serial.printf(" - UpdateTime:%i\r\n", InUpdateTime);
+            Serial.printf(" - UpdateTime:%i", InUpdateTime);
           #endif
         }
         
@@ -202,7 +224,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
       }
     }
     #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
-      Serial.println(F("DONE - createDS18B20()"));
+      Serial.println(F("    DONE - createDS18B20()"));
     #endif
   };
   

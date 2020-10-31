@@ -58,30 +58,27 @@ namespace JCA{ namespace IOT{ namespace MESH{
         int e;
         int d;
         
-        strncpy(DstElement, Data["dstElement"], JCA_IOT_ELEMENT_NAME_LEN);
-        strncpy(DstData, Data["dstElement"], JCA_IOT_ELEMENT_NAME_LEN);
-        
-        error = JCA_IOT_MESH_ERROR_PUSH_ELEMENT;
+        error = JCA_IOT_MESH_ERROR_CODE_ELEMENT;
         // Elemente nach dem Namen durchsuchen
-        for (e = 0; e < Elements.size(); e++){
-          if(strcmp(Elements[e]->Name, Data["dstElement"].as<char*>) == 0){
+        for (e = 0; e < Elements->size(); e++){
+          if(strcmp((*Elements)[e]->Name, Data["dstElement"].as<char*>()) == 0){
             // Das Element wurde gefunden
-            error = JCA_IOT_MESH_ERROR_PUSH_DATA;
+            error = JCA_IOT_MESH_ERROR_CODE_DATA;
             // .. im Element den Datenpunkt suchen
-            for (d = 0; d < Elements[e]->Data.size(); d++){
-              if(strcmp(Elements[e]->Data[d]->Name, Data["dstData"].as<char*>) == 0){
+            for (d = 0; d < (*Elements)[e]->Data.size(); d++){
+              if(strcmp((*Elements)[e]->Data[d]->Name, Data["dstData"].as<char*>()) == 0){
                 // Es wurde ein passender Datenpunkt gefunden
-                error = JCA_IOT_MESH_ERROR_NONE;
+                error = JCA_IOT_MESH_ERROR_CODE_NONE;
                 // Daten anhand des Datentype schreiben
-                switch(Elements[e]->Data[d]->Type){
+                switch((*Elements)[e]->Data[d]->Type){
                   case JCA_IOT_ELEMENT_DATA_BOOL:
-                    Elements[e]->setDataBool(d, Data["value"].as<bool>);
+                    (*Elements)[e]->setDataBool(d, Data["value"].as<bool>());
                     break;
                   case JCA_IOT_ELEMENT_DATA_INT:
-                    Elements[e]->setDataInt(d, Data["value"].as<int32_t>);
+                    (*Elements)[e]->setDataInt(d, Data["value"].as<int32_t>());
                     break;
                   case JCA_IOT_ELEMENT_DATA_FLOAT:
-                    Elements[e]->setDataFloat(d, Data["value"].as<float>);
+                    (*Elements)[e]->setDataFloat(d, Data["value"].as<float>());
                     break;
                 }
                 break;
@@ -95,178 +92,110 @@ namespace JCA{ namespace IOT{ namespace MESH{
         if(error){
           iError ErrorReport;
           
-          ErrorReport.type = JCA_IOT_MESH_ERROR_PUSH
-          ErrorReport.data["srcNodeId"] = Data["from"];
-          ErrorReport.data["dstNode"] = "";
-          ErrorReport.data["dstElement"] = Data["dstElement"];
-          ErrorReport.data["dstData"] = Data["dstData"];
-          ErrorReport.data["value"] = Data["value"];
-          ErrorReport.data["error"] = error;
+          ErrorReport.type = JCA_IOT_MESH_ERROR_TYPE_PUSH;
+          ErrorReport.data = "dstElement:";
+          ErrorReport.data += Data["dstElement"].as<String>();
+          ErrorReport.data += " dstData:";
+          ErrorReport.data += Data["dstData"].as<String>();
 
-          sendError(MeshOut, ErrorReport);
-        }
-      }
-      
-      /***************************************
-       * Methode: recvAlarmAck(std::vector<ELEMENT::cRoot*> Elements, JsonObject Data)
-       * Info:  Funktion zum empfangen und verarbeiten einer
-       *        Alarm-Quittierung
-       *        Alarm.State auf Ack/Idle setzen
-       ***************************************/
-      void recvAlarmAck(std::vector<ELEMENT::cRoot*> *Elements, JsonObject Data){
-        unsigned char e = Data["eIdx"].as<unsigned char>();
-        unsigned char i = Data["aIdx"].as<unsigned char>();
-        // Alarm-Status prüfen ...
-        switch ((*Elements)[e]->Alarm[i]->State) {
-          case JCA_IOT_ELEMENT_ALARM_STATE_COMESEND:
-            // ... der Status ist gekommen und wurde bestätigt
-            if (Data["state"] == JCA_IOT_ELEMENT_ALARM_STATE_COME) {
-              // ... dann wird er auf empfangen gesetzt
-              (*Elements)[e]->Alarm[i]->State = JCA_IOT_ELEMENT_ALARM_STATE_COMEACK;
-            }
-          case JCA_IOT_ELEMENT_ALARM_STATE_GONESEND:
-            // ... der Status ist gegangen und wurde bestätigt
-            if (Data["state"] == JCA_IOT_ELEMENT_ALARM_STATE_GONE) {
-              // ... dann wird er auf inaktiv gesetzt
-              (*Elements)[e]->Alarm[i]->State = JCA_IOT_ELEMENT_ALARM_STATE_IDLE;
-            }
-        }
-      }
-      
-      /***************************************
-       * Methode: sendError(JsonObject MeshOut, error Data)
-       * Info:  Funktion zur Erstellung eines Archiv Telegramms
-       *        Fügt dem MeshOut-Buffer eine Archiv-Nachricht für
-       *        jeden Server hinzu.
-       ***************************************/
-      bool sendError(JsonObject &MeshOut, iError Data){
-        JsonArray Server;
-        JsonObject Msg;
-        char srvId[11];
-        #if (DEBUGLEVEL >= JCA_IOT_DEBUG_DIAG)
-          Serial.print(F("SEND ERROR - type:"));
-          Serial.println(Data.type);
-        #endif
-        // Alle erfallsten Server durchlaufen
-        for (int srv = 0; srv < LogServers.size(); srv++){
-          sprintf(srvId, "%d", LogServers[srv].id);
-          // Falls noch kein Eintrag für die NodeId existiert, diese erstellen
-          if (MeshOut.containsKey(srvId)){
-            Server = MeshOut[srvId];
-          }else{
-            Server = MeshOut.createNestedArray(srvId);
-          }
-          Msg = Server.createNestedObject();
-          Msg["msgId"] = JCA_IOT_MESH_SRV_FAILLOG;
-          Msg["type"] = Data.type;
-          Msg["data"] = Data.data;
-        }
-        return true;
-      }
+          //ErrorReport.data["time"] = true;
+          //ErrorReport.data["srcNodeId"] = Data["from"];
+          //ErrorReport.data["failNode"] = true;
+          //ErrorReport.data["dstElement"] = Data["dstElement"];
+          //ErrorReport.data["dstData"] = Data["dstData"];
+          //ErrorReport.data["value"] = Data["value"];
+          //ErrorReport.data["error"] = error;
 
-      /***************************************
-       * Methode: sendArchivData(JsonObject MeshOut, archivData Data)
-       * Info:  Funktion zur Erstellung eines Archiv Telegramms
-       *        Fügt dem MeshOut-Buffer eine Archiv-Nachricht für
-       *        jeden Server hinzu.
-       ***************************************/
-      bool sendArchivData(JsonObject &MeshOut, iArchivData Data){
-        JsonArray Server;
-        JsonObject Msg;
-        char srvId[11];
-        // Alle erfallsten Server durchlaufen
-        #if (DEBUGLEVEL >= JCA_IOT_DEBUG_LOOP)
-          Serial.print(F("  CountArchivServer:"));
-          Serial.println(ArchivServers.size());
-        #endif
-        for (int srv = 0; srv < ArchivServers.size(); srv++){
-          sprintf(srvId, "%d", ArchivServers[srv].id);
-          // Falls noch kein Eintrag für die NodeId existiert, diese erstellen
-          if (MeshOut.containsKey(srvId)){
-            Server = MeshOut[srvId];
-          }else{
-            Server = MeshOut.createNestedArray(srvId);
-          }
-          Msg = Server.createNestedObject();
-          Msg["msgId"] = JCA_IOT_MESH_SRV_ARCHIVDATA;
-          Msg["node"] = true;
-          Msg["time"] = Data.timestamp;
-          Msg["eIdx"] = Data.elementIndex;
-          Msg["tIdx"] = Data.archivIndex;
-          Msg["value"] = Data.value;
-          Msg["type"] = Data.trigger;
+          Client.sendError(MeshOut, ErrorReport);
         }
-        return true;
       }
       
       /***************************************
-       * Methode: sendAlarm(JsonObject MeshOut, alarm Data)
-       * Info:  Funktion zur Erstellung eines Alarm Telegramms
-       *        Fügt dem MeshOut-Buffer eine Alarm-Nachricht für
-       *        jeden Server hinzu.
+       * Methode: recvDataRequest(JsonObject Data, cClient& Client, std::vector<ELEMENT::cRoot*> *Elements, JsonObject &MeshOut)
+       * Info:  Funktion zum empfangen und verarbeiten eines
+       *        Data-Request telegramm. liest den Datenpunkt
+       *        des Elements und sendet den Wert zurück.
+       * Parameter:
+       *        Data [JsonObject]
+       *            Enthält das empfangene Telegram
+       *        Client [JCA::IOT::MESH::cClient]
+       *            Stellt die Schnittstelle für Fehlerlogs zur Verfügung
+       *        Elements [vector<ELEMENT::cRoot*>]
+       *            Vector mit allen Elementen der Node
+       *        MeshOut [JsonObject&]
+       *            Puffer für ausgehende Mesh-Telegramme
        ***************************************/
-      bool sendAlarm(JsonObject &MeshOut, iAlarm Data){
-        JsonArray Server;
-        JsonObject Msg;
-        char srvId[11];
-        // Alle erfallsten Server durchlaufen
-        for (int srv = 0; srv < AlarmServers.size(); srv++){
-          sprintf(srvId, "%d", AlarmServers[srv].id);
-          // Falls noch kein Eintrag für die NodeId existiert, diese erstellen
-          if (MeshOut.containsKey(srvId)){
-            Server = MeshOut[srvId];
-          }else{
-            Server = MeshOut.createNestedArray(srvId);
-          }
-          Msg = Server.createNestedObject();
-          Msg["msgId"] = JCA_IOT_MESH_SRV_ALARM;
-          Msg["time"] = Data.timestamp;
-          Msg["node"] = true;
-          Msg["prio"] = Data.prio;
-          Msg["text"] = Data.text;
-          Msg["eIdx"] = Data.elementIndex;
-          Msg["aIdx"] = Data.alarmIndex;
-          Msg["state"] = Data.state;
-        }
-        return true;
-      }
-      
-    private:
-      clientState State;
-      int32_t reqTimer;
-      uint32_t Timestamp;
-      uint32_t TimeMillis;
-      std::vector<serverState> LogServers;
-      std::vector<serverState> AlarmServers;
-      std::vector<serverState> ArchivServers;
-      
-      /***************************************
-       * Methode: sendSrvRequest(JsonObject MeshOut)
-       * Info:  Funktion zur Erstellung eines Server-Request
-       *        Fügt dem MeshOut-Buffer eine Broadcast-Nachricht hinzu
-       ***************************************/
-      bool sendSrvRequest(JsonObject &MeshOut){
-        JsonArray Broadcasts;
-        JsonObject Msg;
+      void recvDataRequest(JsonObject Data, cClient& Client, std::vector<ELEMENT::cRoot*> *Elements, JsonObject &MeshOut){
+        unsigned char error;
+        int e;
+        int d;
         
-        #if (DEBUGLEVEL >= JCA_IOT_DEBUG_TELEGRAM)
-          Serial.println(F("SEND SRV REQUEST"));
-        #endif
+        error = JCA_IOT_MESH_ERROR_CODE_ELEMENT;
+        // Elemente nach dem Namen durchsuchen
+        for (e = 0; e < Elements->size(); e++){
+          if(strcmp((*Elements)[e]->Name, Data["reqElement"].as<char*>()) == 0){
+            // Das Element wurde gefunden
+            error = JCA_IOT_MESH_ERROR_CODE_DATA;
+            // .. im Element den Datenpunkt suchen
+            for (d = 0; d < (*Elements)[e]->Data.size(); d++){
+              if(strcmp((*Elements)[e]->Data[d]->Name, Data["reqData"].as<char*>()) == 0){
+                // Es wurde ein passender Datenpunkt gefunden
+                error = JCA_IOT_MESH_ERROR_CODE_NONE;
+                
+                // Telegramdaten
+                char nodeId[11];
+                JsonArray DestNode;
+                JsonObject Msg;
+                
+                // prüfen ob für die anfragende Node bereits ein Eintrag im Ausgabespeicher existiert
+                sprintf(nodeId, "%d", Data["from"].as<uint32_t>());
+                if (MeshOut.containsKey(nodeId)){
+                  DestNode = MeshOut[nodeId];
+                }else{
+                  DestNode = MeshOut.createNestedArray(nodeId);
+                }
 
-        // Sync-Status aktuallisieren
-        State = cltRequesting;
-        
-        // Falls noch kein Broadcast Eintrag existiert diesen erstellen
-        if (MeshOut.containsKey("broadcast")){
-          Broadcasts = MeshOut["broadcast"];
-        }else{
-          Broadcasts = MeshOut.createNestedArray("broadcast");
+                // Antwortnachricht erzeugen
+                Msg = DestNode.createNestedObject();
+                Msg["msgId"] = JCA_IOT_MESH_DATA_REPLY;
+                Msg["element"] = Data["srcElement"];
+                Msg["data"] = Data["srcData"];
+
+                switch(Data["reqDataType"].as<unsigned char>()){
+                  case JCA_IOT_ELEMENT_DATA_BOOL:
+                    Msg["value"] = (*Elements)[e]->getDataBool(d);
+                    break;
+                  case JCA_IOT_ELEMENT_DATA_INT:
+                    Msg["value"] = (*Elements)[e]->getDataInt(d);
+                    break;
+                  case JCA_IOT_ELEMENT_DATA_FLOAT:
+                    Msg["value"] = (*Elements)[e]->getDataFloat(d);
+                    break;
+                }
+                break;
+              }
+            }
+            break;
+          }
         }
-        Msg = Broadcasts.createNestedObject();
-        Msg["msgId"] = JCA_IOT_MESH_SRV_REQUEST;
-        return true;
+        
+        // Falls kein passender Datenpunkt gefunden wurde wird ein Fehlerbericht gesendet
+        if(error){
+          iError ErrorReport;
+          
+          ErrorReport.type = JCA_IOT_MESH_ERROR_TYPE_REQUEST;
+          ErrorReport.data = "reqElement:";
+          ErrorReport.data += Data["reqElement"].as<String>();
+          ErrorReport.data += " reqData:";
+          ErrorReport.data += Data["reqData"].as<String>();
+          //ErrorReport.data["srcNodeId"] = Data["from"];
+          //ErrorReport.data["srcElement"] = Data["srcElement"];
+          //ErrorReport.data["srcData"] = Data["srcData"];
+          //ErrorReport.data["error"] = error;
+
+          Client.sendError(MeshOut, ErrorReport);
+        }
       }
-      
   };
 }}}
 #endif

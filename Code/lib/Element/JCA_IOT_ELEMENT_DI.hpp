@@ -96,7 +96,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
   
   void createDI(JsonObject JConf, std::vector<JCA::IOT::ELEMENT::cRoot*>& InElements){
     #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
-      Serial.println(F("START - createDI()"));
+      Serial.println(F("    START - createDI()"));
     #endif
     if (JConf.containsKey("name") && JConf.containsKey("config")){
       if (JConf["config"].containsKey("pin")){
@@ -113,7 +113,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
         }
         
         #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
-          Serial.printf("  Name:%s - Pin:%i", InName, InPin);
+          Serial.printf("      Name:%s - Pin:%i", InName, InPin);
         #endif
         if (JConf["config"].containsKey("pullup")){
           InPullup = JConf["config"]["pullup"].as<bool>();
@@ -131,7 +131,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
       }
     }
     #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
-      Serial.println(F("DONE - createDI()"));
+      Serial.println(F("    DONE - createDI()"));
     #endif
   };
   

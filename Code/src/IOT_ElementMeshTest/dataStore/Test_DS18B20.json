@@ -5,7 +5,7 @@
     "i2c":false,
     "spi":false,
     "oneWire":true,
-    "oneWire_config":{"pin":0}
+    "oneWire_config":{"pin":2}
   },
   "elements":[
     {
@@ -14,7 +14,7 @@
       "config":{
         "addr":[40, 255, 27, 231, 65, 22 ,4, 54],
         "watchdog":180,
-        "updateTime":100
+        "updateTime":20
       },
       "input":[],
       "data":[],
@@ -39,25 +39,6 @@
           "value":30.0
         }
       ],
-      "archiv":[],
-      "alarm":[]
-    },{
-      "name":"Test_PWM",
-      "type":"PWM",
-      "config":{
-        "pin":16,
-        "frequency":1000,
-        "min":29.0,
-        "max":32.0
-      },
-      "input":[
-        {
-          "name":"ProcessValue",
-          "element":0,
-          "data":0
-        }
-      ],
-      "data":[],
       "archiv":[],
       "alarm":[]
     },{
@@ -86,7 +67,7 @@
           "value":0.6
         },{
           "name":"Delay",
-          "value":2
+          "value":600
           }
       ],
       "archiv":[],

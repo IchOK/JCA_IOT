@@ -16,10 +16,12 @@
  *       -- cHandler
  *       -- config
  *       -- update
- *    V1.0.1  BugFix      02.08.2020  JCA
- *    -fixed sendMsg
+ *    V1.0.1  Erweiterung 02.08.2020  JCA
+ *    -sendMsg
  *       -- srcNode Id auflösen für Fehlerberichte
  *       -- dstNode mit lokalem Node-Name ersetzen
+ *    -recvMsg
+ *       -- Sync-Push/-Request Aufrufe
  **********************************************/
 
 #ifndef _JCA_IOT_MESH_HANDLER_H
@@ -34,6 +36,7 @@
 #include "Mesh/JCA_IOT_MESH_types.h"
 #include "Mesh/JCA_IOT_MESH_Client.hpp"
 #include "Mesh/JCA_IOT_MESH_Config.hpp"
+#include "Mesh/JCA_IOT_MESH_Sync.hpp"
 
 #include "Element/JCA_IOT_ELEMENT_Root.hpp"
 
@@ -69,6 +72,7 @@ namespace JCA{ namespace IOT{ namespace MESH{
       int32_t HelloCycle;
       cConfig Config;
       cClient Client;
+      cSync Sync;
       
       /***************************************
        * Methode: cHandler()
@@ -177,6 +181,44 @@ namespace JCA{ namespace IOT{ namespace MESH{
           
           //switch betwen diffrent types and call subfunction
           switch (Data["msgId"].as<int>()){
+            //#####################################
+            // Subscriber
+            // TODO
+            //#####################################
+            
+            //#####################################
+            // Sync
+            //#####################################
+            //-------------------------
+            // Data-Push Msg
+            //-------------------------
+            case JCA_IOT_MESH_PUSH:
+              Sync.recvDataPush(Data, Client, Elements, MeshOut);
+              break;
+                        
+            //-------------------------
+            // Data-Request Msg
+            //-------------------------
+            case JCA_IOT_MESH_DATA_REQUEST:
+              Sync.recvDataRequest(Data, Client, Elements, MeshOut);
+              // not implemented at the Moment, maybe later if there will be a ServerNode for Error-Output (signal Lamp or Display)
+              break;
+                        
+            //-------------------------
+            // Data-Reply Msg
+            //-------------------------
+            case JCA_IOT_MESH_DATA_REPLY:
+              // not implemented at the Moment, sync read only used from HMI
+              break;
+                        
+            //#####################################
+            // Config
+            // TODO
+            //#####################################
+
+            //#####################################
+            // Server-Client
+            //#####################################
             //-------------------------
             // Server Publish
             //-------------------------
@@ -243,7 +285,7 @@ namespace JCA{ namespace IOT{ namespace MESH{
               break;
               
             //-------------------------
-            // FailLog Msg
+            // Data-Push Msg
             //-------------------------
             case JCA_IOT_MESH_SRV_FAILLOG:
               // not implemented at the Moment, maybe later if there will be a ServerNode for Error-Output (signal Lamp or Display)
@@ -293,22 +335,27 @@ namespace JCA{ namespace IOT{ namespace MESH{
               InBuffer[i]["node"] = Config.Name;
             }
 
+            // Node-Name ersetzen
+            if (InBuffer[i]["time"]){
+              InBuffer[i]["time"] = Client.Timestamp;
+            }
+
             // Source-Node Name als Quelle des fehlerhaften Telegramms im Names-Vector suchen.
             if (InBuffer[i]["srcNodeId"]){
               for(MeshNameIt = MeshNames.begin(); MeshNameIt != MeshNames.end(); ++MeshNameIt) {
-                if (MeshNameIt->id == InBuffer[i]["srcNodeId"].as<uint32_t>){
+                if (MeshNameIt->id == InBuffer[i]["srcNodeId"].as<uint32_t>()){
                   InBuffer[i]["srcNode"] = MeshNameIt->name;
                   break;
                 }
               }
             }
             // Localer Node Name des aufgetretenen Fehlers
-            if (InBuffer[i]["dstNode"]){
-              InBuffer[i]["dstNode"] = Config.Name;
+            if (InBuffer[i]["failNode"]){
+              InBuffer[i]["failNode"] = Config.Name;
             }
             
             serializeJson(InBuffer[i], OutMsgTmp);
-            if (OutMsgTmp.length() < 1023) {
+            if (OutMsgTmp.length() < 300) {
               OutMsg = OutMsgTmp;
               InBuffer.remove(i);
             }else{

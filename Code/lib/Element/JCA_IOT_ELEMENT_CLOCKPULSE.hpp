@@ -1,15 +1,15 @@
 /**********************************************
- * Class:   JCA_IOT_ELEMENT_CLOCKPULSE
+ * Class:   JCA_IOT_ELEMENT_ClockPulse
  * Info:    Abgeleitete Klasse von JCA_IOT_ELEMENT
- *          Bildet eine logische Oder-Verknüpfung.
- *          Zur Zeit noch statisch mit 4 Eingängen
+ *          Erzeugt einen variablen Impuls zum
+ *          definierten Zeitpunkt.
  * Version:
  *    V1.0.0   Erstellt    03.08.2020  JCA
  *    -add Properties
- *       -- TimeOn/-Off
+ *       -- Time/Pulse
  *       -- Value (Manual-Auto)
  *    -add Methoden
- *       -- cCLOCKPULSE
+ *       -- cClockPulse
  *       -- update
  **********************************************/
 
@@ -26,7 +26,7 @@
 //Include extrenal
 
 namespace JCA{ namespace IOT{ namespace ELEMENT{
-  class cCLOCKPULSE : public cRoot {
+  class cClockPulse : public cRoot {
     public:
       uint32_t    LastInterval;
       int32_t     PulseCount;
@@ -37,7 +37,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
       cDataBool   ManValue;
       cDataBool   Value;
       
-      cCLOCKPULSE(const char* InName) : cRoot(InName, JCA_IOT_ELEMENT_TYPE_CLOCKPULSE) {
+      cClockPulse(const char* InName) : cRoot(InName, JCA_IOT_ELEMENT_TYPE_CLOCKPULSE) {
         
         // init Data
         Time.init("Time");
@@ -67,7 +67,7 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
         // Seconds per Day
         IntervalSeconds = localTime.tm_hour*3600 + localTime.tm_min*60 + localTime.tm_sec;
         #if (DEBUGLEVEL >= JCA_IOT_DEBUG_LOOP)
-          Serial.println(F(" START - cCLOCKPULSE.update()"));
+          Serial.println(F(" START - cClockPulse.update()"));
           Serial.printf("  Name:%s\r\n",Name);
           Serial.printf("  Uhrzeit  %02d:%02d:%02d\r\n", localTime.tm_hour, localTime.tm_min, localTime.tm_sec);
           Serial.printf("  Interval %08d\r\n", IntervalSeconds);
@@ -100,32 +100,32 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
           Serial.printf("  AutoValue:%i\r\n",AutoValue.Value);
           Serial.printf("  ManValue:%i\r\n",ManValue.Value);
           Serial.printf("  Value:%i\r\n",Value.Value);
-          Serial.println(F(" DONE - cCLOCKPULSE.update()"));
+          Serial.println(F(" DONE - cClockPulse.update()"));
         #endif
       }
   };
 
-  void createCLOCKPULSE(JsonObject JConf, std::vector<JCA::IOT::ELEMENT::cRoot*>& InElements){
+  void createClockPulse(JsonObject JConf, std::vector<JCA::IOT::ELEMENT::cRoot*>& InElements){
     #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
-      Serial.println(F("START - createCLOCKPULSE()"));
+      Serial.println(F("    START - createClockPulse()"));
     #endif
     if (JConf.containsKey("name")){
       char InName[JCA_IOT_ELEMENT_NAME_LEN];
       strncpy(InName, JConf["name"].as<char*>(), JCA_IOT_ELEMENT_NAME_LEN);
          
       #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
-        Serial.printf("  Name:%s\r\n", InName);
+        Serial.printf("      Name:%s\r\n", InName);
       #endif
-      InElements.push_back(new cCLOCKPULSE(InName));
+      InElements.push_back(new cClockPulse(InName));
       InElements.back()->config(JConf);
     }
     #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
-       Serial.println(F("DONE - createCLOCKPULSE()"));
+       Serial.println(F("    DONE - createClockPulse()"));
     #endif
   };
    
-  void beginCLOCKPULSE(cHandler& Handler){
-    Handler.CreateElement.insert( std::pair<String, std::function<void(JsonObject, std::vector<ELEMENT::cRoot*>&)> >("CLOCKPULSE", createCLOCKPULSE));
+  void beginClockPulse(cHandler& Handler){
+    Handler.CreateElement.insert( std::pair<String, std::function<void(JsonObject, std::vector<ELEMENT::cRoot*>&)> >("ClockPulse", createClockPulse));
   };
 }}}
 

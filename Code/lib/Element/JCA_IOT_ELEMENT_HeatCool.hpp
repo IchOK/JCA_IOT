@@ -4,7 +4,7 @@
  *          Stellt einen 3-Punkt-Regler dar mit separat
  *          einstellbaren Schwellwerten.
  *          - Hysterese
- *          - Umschaltverzögerung
+ *          - Umschaltverzï¿½gerung
  * Version:
  *    V1.0.0   Erstellt    24.10.2020  JCA
  *    -add Properties
@@ -173,20 +173,20 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
 
   void createHeatCool(JsonObject JConf, std::vector<JCA::IOT::ELEMENT::cRoot*>& InElements){
     #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
-      Serial.println(F("START - createHeatCool()"));
+      Serial.println(F("    START - createHeatCool()"));
     #endif
     if (JConf.containsKey("name")){
       char InName[JCA_IOT_ELEMENT_NAME_LEN];
       strncpy(InName, JConf["name"].as<char*>(), JCA_IOT_ELEMENT_NAME_LEN);
          
       #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
-        Serial.printf("  Name:%s\r\n", InName);
+        Serial.printf("      Name:%s\r\n", InName);
       #endif
       InElements.push_back(new cHeatCool(InName));
       InElements.back()->config(JConf);
     }
     #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
-       Serial.println(F("DONE - createHeatCool()"));
+       Serial.println(F("    DONE - createHeatCool()"));
     #endif
   };
    

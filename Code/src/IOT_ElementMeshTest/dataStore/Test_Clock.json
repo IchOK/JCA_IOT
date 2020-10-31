@@ -7,7 +7,7 @@
     "port":5555,
     "station":[192,168,223,1]
   },
-  "konfig":{
+  "config":{
     "i2c":false,
     "spi":false,
     "onewire":false
@@ -15,7 +15,7 @@
   "elements":[
     {
       "name":"TestSchaltuhr",
-      "type":"CLOCKSPAN",
+      "type":"ClockSpan",
       "input":[],
       "data":[
         {
@@ -30,7 +30,7 @@
       "alarm":[]
     },{
       "name":"TestUhrPulse",
-      "type":"CLOCKPULSE",
+      "type":"ClockPulse",
       "input":[],
       "data":[
         {

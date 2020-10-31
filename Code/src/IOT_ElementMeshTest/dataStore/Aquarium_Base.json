@@ -7,7 +7,7 @@
     "port":5555,
     "station":[192,168,223,1]
   },
-  "konfig":{
+  "config":{
     "i2c":false,
     "spi":false,
     "onewire":false
@@ -15,7 +15,7 @@
   "elements":[
     {
       "name":"MainPower",
-      "type":"CLOCKSPAN",
+      "type":"ClockSpan",
       "input":[],
       "data":[
         {
@@ -30,7 +30,7 @@
       "alarm":[]
     },{
       "name":"TimerSonne",
-      "type":"CLOCKSPAN",
+      "type":"ClockSpan",
       "input":[],
       "data":[
         {
@@ -45,7 +45,7 @@
       "alarm":[]
     },{
       "name":"Futter1",
-      "type":"CLOCKPULSE",
+      "type":"ClockPulse",
       "input":[],
       "data":[
         {
@@ -60,7 +60,7 @@
       "alarm":[]
     },{
       "name":"Futter2",
-      "type":"CLOCKPULSE",
+      "type":"ClockPulse",
       "input":[],
       "data":[
         {
@@ -75,7 +75,7 @@
       "alarm":[]
     },{
       "name":"Futter3",
-      "type":"CLOCKPULSE",
+      "type":"ClockPulse",
       "input":[],
       "data":[
         {

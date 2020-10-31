@@ -7,12 +7,12 @@
     "port":5555,
     "station":[192,168,223,1]
   },
-  "konfig":{
+  "config":{
     "i2c":true,
-    "i2c_konfig":{"sda":4, "scl":5},
+    "i2c_config":{"sda":4, "scl":5},
     "spi":false,
     "onewire":true,
-    "onewire_konfig":{"pin":15}
+    "onewire_config":{"pin":15}
   },
   "elements":[
     {

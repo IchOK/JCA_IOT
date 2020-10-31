@@ -1,8 +1,8 @@
 /**********************************************
  * Class:   JCA_IOT_ELEMENT_OR
  * Info:    Abgeleitete Klasse von JCA_IOT_ELEMENT
- *          Bildet eine logische Oder-Verknüpfung.
- *          Zur Zeit noch statisch mit 4 Eingängen
+ *          Bildet eine logische Oder-Verknï¿½pfung.
+ *          Zur Zeit noch statisch mit 4 Eingï¿½ngen
  * Version:
  *    V1.0.0   Erstellt    03.08.2020  JCA
  *    -add Properties
@@ -73,20 +73,20 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
 
   void createOR(JsonObject JConf, std::vector<JCA::IOT::ELEMENT::cRoot*>& InElements){
     #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
-      Serial.println(F("START - createOR()"));
+      Serial.println(F("    START - createOR()"));
     #endif
     if (JConf.containsKey("name")){
       char InName[JCA_IOT_ELEMENT_NAME_LEN];
       strncpy(InName, JConf["name"].as<char*>(), JCA_IOT_ELEMENT_NAME_LEN);
          
       #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
-        Serial.printf("  Name:%s\r\n", InName);
+        Serial.printf("      Name:%s\r\n", InName);
       #endif
       InElements.push_back(new cOR(InName));
       InElements.back()->config(JConf);
     }
     #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
-       Serial.println(F("DONE - createOR()"));
+       Serial.println(F("    DONE - createOR()"));
     #endif
   };
    

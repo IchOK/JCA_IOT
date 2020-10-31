@@ -145,19 +145,6 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
        *        InConfigFile [char*] Name/Pfad der Konfigurations-Datei
        ***************************************/
       bool config(JsonObject& JConfig){
-        
-        //-------------------------------------------------------------------------------------------------------------
-        // CONFIG - Netzwerk Einstellungen
-        // TODO
-        // Ist eine Konfiguration vorhanden ..
-        // .. wird das Node mit dem Mesh-Netzwerk verbunden
-        //    und der Node-Handler initialisiert
-        // .. sonst wird ein lokaler AP gestartet
-        //    und ein Webserver
-        //    mit einer Konfigurations-Webseite
-        //    - File Upload
-        //    - OnBoard-Blink Funktion
-        //-------------------------------------------------------------------------------------------------------------
         #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
           Serial.println(F("  START - global Settings"));
         #endif
@@ -179,7 +166,20 @@ namespace JCA{ namespace IOT{ namespace ELEMENT{
         //    T    OOO  DDD    OOO 
         //
         //-------------------------------------------------------------------------------------------------------------
-
+        
+        //-------------------------------------------------------------------------------------------------------------
+        // CONFIG - Bus oneWire (falls definiert)
+        #ifdef JCA_IOT_ELEMENT_ONEWIRE
+          if (JConfig["config"]["oneWire"].as<bool>()){
+            uint8_t oneWirePin = JConfig["config"]["oneWire_config"]["pin"].as<uint8_t>();
+            JCA_OneWire.begin(oneWirePin);
+            #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
+              Serial.printf("    OneWire - Pin:%i\r\n",oneWirePin);
+            #endif
+          }
+        #endif
+        //-------------------------------------------------------------------------------------------------------------
+        
         #if (DEBUGLEVEL >= JCA_IOT_DEBUG_STARTUP)
           Serial.println(F("  DONE - global Settings"));
         #endif

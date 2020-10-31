@@ -47,7 +47,7 @@ namespace JCA{ namespace IOT{ namespace MESH{
   }iAlarm;
   typedef struct iError{
     uint16_t type;
-    JsonObject data;
+    String data;
   }iError;
   
   /***************************************
